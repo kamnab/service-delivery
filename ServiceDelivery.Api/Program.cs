@@ -44,5 +44,5 @@ app.MapPost("/echo", (string message) => $"You said: {message}");
 app.UseHttpsRedirection();
 
 app.MapHub<NotificationsHub>("Notifications");
-
+Console.WriteLine(Guid.NewGuid());
 app.Run();

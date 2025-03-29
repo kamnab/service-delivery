@@ -20,7 +20,9 @@ Welcome to your new app.
     protected override async Task OnInitializedAsync()
     {
         _hubConnection = new HubConnectionBuilder()
-        .WithUrl("https://localhost:5001/notifications")
+        .WithUrl("https://localhost:5001/notifications",
+        options => options.AccessTokenProvider = () =>
+        Task.FromResult<string?>("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjcyOThmZGE0LTJiY2UtNDllNS1iMjg0LTM5YzNhY2M5NjhmMSIsInN1YiI6IjcyOThmZGE0LTJiY2UtNDllNS1iMjg0LTM5YzNhY2M5NjhmMSIsImp0aSI6ImFiODk4YmEwIiwiYXVkIjpbImh0dHA6Ly9sb2NhbGhvc3Q6NTE2NCIsImh0dHBzOi8vbG9jYWxob3N0OjcwMzMiXSwibmJmIjoxNzQzMjY1MDcxLCJleHAiOjE3NTEyMTM4NzEsImlhdCI6MTc0MzI2NTA3MSwiaXNzIjoiZG90bmV0LXVzZXItand0cyJ9.fOUF1mNHceUg8iaJMd2hg_XEhbRUaPCOnX0QifmV4E8"))
         .Build();
 
         _hubConnection.On<string>("ReceiveNotification", message =>

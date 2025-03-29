@@ -53,5 +53,5 @@ app.Run();
 - Microsoft.AspNetCore.Authentication.JwtBearer
 
 ### Generate jwt access token
-- Terminal
-- dotnet user-jwts create ""
+
+- dotnet user-jwts create -n "7298fda4-2bce-49e5-b284-39c3acc968f1"
