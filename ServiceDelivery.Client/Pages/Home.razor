@@ -3,7 +3,18 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (_connectionStatus == "Connected")
+{
+    <p style="color: green;">🟢 Connected</p>
+}
+else if (_connectionStatus == "Reconnecting...")
+{
+    <p style="color: orange;">🟠 Reconnecting...</p>
+}
+else
+{
+    <p style="color: red;">🔴 @_connectionStatus</p>
+}
 
 Welcome to your new app.
 
@@ -17,21 +28,81 @@ Welcome to your new app.
 @code {
     private HubConnection? _hubConnection;
     private readonly List<string> _messages = new();
+    public bool IsConnected => _hubConnection?.State == HubConnectionState.Connected;
+    public string? _connectionStatus = string.Empty;
+
+
     protected override async Task OnInitializedAsync()
     {
         _hubConnection = new HubConnectionBuilder()
-        .WithUrl("https://localhost:5001/notifications",
-        options => options.AccessTokenProvider = () =>
+        .WithUrl("https://localhost:5001/notifications", options => options.AccessTokenProvider = () =>
         Task.FromResult<string?>("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjcyOThmZGE0LTJiY2UtNDllNS1iMjg0LTM5YzNhY2M5NjhmMSIsInN1YiI6IjcyOThmZGE0LTJiY2UtNDllNS1iMjg0LTM5YzNhY2M5NjhmMSIsImp0aSI6ImFiODk4YmEwIiwiYXVkIjpbImh0dHA6Ly9sb2NhbGhvc3Q6NTE2NCIsImh0dHBzOi8vbG9jYWxob3N0OjcwMzMiXSwibmJmIjoxNzQzMjY1MDcxLCJleHAiOjE3NTEyMTM4NzEsImlhdCI6MTc0MzI2NTA3MSwiaXNzIjoiZG90bmV0LXVzZXItand0cyJ9.fOUF1mNHceUg8iaJMd2hg_XEhbRUaPCOnX0QifmV4E8"))
+        .WithAutomaticReconnect()
         .Build();
+
+        // Triggered when SignalR starts reconnecting (e.g., network failure)
+        _hubConnection.Reconnecting += error =>
+        {
+            Console.WriteLine("🔄 Reconnecting...");
+            _connectionStatus = "Reconnecting..."; // Update UI state
+            InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
+        };
+
+        // Triggered when SignalR successfully reconnects
+        _hubConnection.Reconnected += connectionId =>
+        {
+            Console.WriteLine("✅ Reconnected!");
+            _connectionStatus = "Connected"; // Update UI state
+            InvokeAsync(StateHasChanged);
+            return Task.CompletedTask;
+        };
+
+        // Triggered when SignalR is permanently closed or fails unexpectedly
+        _hubConnection.Closed += async (error) =>
+        {
+            Console.WriteLine("❌ Connection lost! Retrying indefinitely...");
+            _connectionStatus = "Disconnected. Trying to reconnect..."; // Update UI state
+            await InvokeAsync(StateHasChanged);
+            await RetryConnectIndefinitely();
+        };
 
         _hubConnection.On<string>("ReceiveNotification", message =>
         {
-            _messages.Add(message);
+            lock (_messages)
+            {
+                _messages.Add(message);
+            }
             InvokeAsync(StateHasChanged);
         });
 
-        await _hubConnection.StartAsync();
+        await RetryConnectIndefinitely(); // Ensures connection starts with retries
+    }
+
+    /// <summary>
+    /// Keeps trying to reconnect indefinitely every 5 seconds.
+    /// </summary>
+    private async Task RetryConnectIndefinitely()
+    {
+        while (_hubConnection.State == HubConnectionState.Disconnected)
+        {
+            try
+            {
+                Console.WriteLine("🔍 Checking connection...");
+                await _hubConnection.StartAsync();
+                Console.WriteLine("✅ Successfully Reconnected!");
+                _connectionStatus = "Connected"; // Update UI state
+                InvokeAsync(StateHasChanged);
+                return;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Reconnect failed: {ex.Message}. Retrying in 5 seconds...");
+                _connectionStatus = "Disconnected. Retrying..."; // Update UI state
+                InvokeAsync(StateHasChanged);
+                await Task.Delay(5000);
+            }
+        }
     }
 
     public async ValueTask DisposeAsync()
@@ -41,5 +112,6 @@ Welcome to your new app.
             await _hubConnection.DisposeAsync();
         }
     }
+
 
 }
