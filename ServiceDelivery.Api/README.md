@@ -55,3 +55,132 @@ app.Run();
 ### Generate jwt access token
 
 - dotnet user-jwts create -n "7298fda4-2bce-49e5-b284-39c3acc968f1"
+
+# 1. Use an In-Memory Connection Store (Thread-Safe)
+#### Step 1: Create a Connection Mapping Service IConnectionManager
+#### Step 2: Register the Service in Program.cs
+#### Step 3: Update NotificationsHub to Track Connections
+```
+public class NotificationsHub : Hub<INotificationClient>
+{
+    private readonly IConnectionManager _connectionManager;
+
+    public NotificationsHub(IConnectionManager connectionManager)
+    {
+        _connectionManager = connectionManager;
+    }
+
+    public override async Task OnConnectedAsync()
+    {
+        var userId = Context.User?.Identity?.Name;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            _connectionManager.AddConnection(userId, Context.ConnectionId);
+        }
+
+        await Clients.Client(Context.ConnectionId).ReceiveNotification($"Thank you for connecting {userId}");
+        await base.OnConnectedAsync();
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        var userId = Context.User?.Identity?.Name;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            _connectionManager.RemoveConnection(userId, Context.ConnectionId);
+        }
+
+        await base.OnDisconnectedAsync(exception);
+    }
+}
+
+```
+
+#### Step 4: Use Connection Manager in a Controller
+```
+[ApiController]
+[Route("api/notifications")]
+public class NotificationsController : ControllerBase
+{
+    private readonly IHubContext<NotificationsHub, INotificationClient> _hubContext;
+    private readonly IConnectionManager _connectionManager;
+
+    public NotificationsController(IHubContext<NotificationsHub, INotificationClient> hubContext, IConnectionManager connectionManager)
+    {
+        _hubContext = hubContext;
+        _connectionManager = connectionManager;
+    }
+
+    [HttpPost("send/{userId}")]
+    public async Task<IActionResult> SendNotification(string userId, [FromBody] string message)
+    {
+        var connections = _connectionManager.GetConnections(userId);
+        foreach (var connectionId in connections)
+        {
+            await _hubContext.Clients.Client(connectionId).ReceiveNotification(message);
+        }
+
+        return Ok();
+    }
+}
+```
+
+Minimal API to Send Notification
+```
+
+app.MapPost("/api/notifications/send/{userId}", async (string userId, string message, 
+    IHubContext<NotificationsHub, INotificationClient> hubContext, 
+    IConnectionManager connectionManager) =>
+{
+    var connections = connectionManager.GetConnections(userId);
+    foreach (var connectionId in connections)
+    {
+        await hubContext.Clients.Client(connectionId).ReceiveNotification(message);
+    }
+
+    return Results.Ok(new { Message = "Notification sent successfully." });
+});
+```
+## 2. Use a Persistent Store (Database)
+If you need persistence across application restarts, store the connection-user mapping in a database like Redis, SQL Server, or MongoDB.
+
+For Redis, you can use StackExchange.Redis:
+```
+public class RedisConnectionManager : IConnectionManager
+{
+    private readonly IDatabase _database;
+
+    public RedisConnectionManager(IConnectionMultiplexer redis)
+    {
+        _database = redis.GetDatabase();
+    }
+
+    public void AddConnection(string userId, string connectionId)
+    {
+        _database.SetAdd($"connections:{userId}", connectionId);
+    }
+
+    public void RemoveConnection(string userId, string connectionId)
+    {
+        _database.SetRemove($"connections:{userId}", connectionId);
+    }
+
+    public IEnumerable<string> GetConnections(string userId)
+    {
+        return _database.SetMembers($"connections:{userId}").Select(m => m.ToString());
+    }
+}
+
+```
+Register Redis in Program.cs:
+```
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost"));
+builder.Services.AddScoped<IConnectionManager, RedisConnectionManager>();
+
+```
+#### Which One to Choose?
+- Use ConcurrentDictionary if you only need to store data in memory.
+- Use Redis or a database if persistence across application restarts is needed.
+
+Would you like a database implementation example with SQL Server or MongoDB?
+
