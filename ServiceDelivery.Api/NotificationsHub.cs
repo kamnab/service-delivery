@@ -30,7 +30,9 @@ public class NotificationsHub : Hub<INotificationClient>
     // On client disconnected
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        Console.WriteLine(nameof(OnDisconnectedAsync));
+        var userId = Context.User?.Identity?.Name;
+
+        Console.WriteLine($"[{DateTime.Now:dd-MM-yy HH:mm:ss}] [{userId}] {nameof(OnDisconnectedAsync)}");
 
         // Check if there was an exception (unexpected disconnection)
         if (exception != null)
@@ -39,7 +41,6 @@ public class NotificationsHub : Hub<INotificationClient>
             Console.WriteLine($"Client disconnected unexpectedly: {exception.Message}");
         }
 
-        var userId = Context.User?.Identity?.Name;
         if (!string.IsNullOrEmpty(userId))
         {
             // Remove the connection from the manager
