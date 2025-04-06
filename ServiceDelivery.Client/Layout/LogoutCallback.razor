@@ -1,0 +1,12 @@
+﻿@page "/authentication/logout-callback"
+@inject NavigationManager Navigation
+
+<h3>You are logging out!</h3>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Redirect to the home page after logging out
+        Navigation.NavigateTo("/");
+    }
+}
