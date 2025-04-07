@@ -194,3 +194,9 @@ Would you like a database implementation example with SQL Server or MongoDB?
 4. Listing Group Members: Optionally, retrieve a list of users in a group.
 
 5. Sending Messages to Groups: Allow sending notifications or messages to a specific group.
+
+# Add Openiddict validation
+- dotnet add package OpenIddict.Validation.AspNetCore
+- dotnet add package OpenIddict.Validation.SystemNetHttp
+- dotnet remove package Microsoft.AspNetCore.Authentication.JwtBearer
+

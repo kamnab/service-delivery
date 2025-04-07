@@ -1,8 +1,9 @@
-using System.ComponentModel;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.IdentityModel.Tokens;
+using OpenIddict.Validation.AspNetCore;
 using ServiceDelivery.Api;
 using ServiceDelivery.Api.Services;
+using Talkemie.Authentication.Infrastructure.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,11 +17,37 @@ builder.Services.AddSwaggerGen(); // Adds full Swagger UI support
 builder.Services.AddSignalR();
 
 // builder.Services.AddHostedService<ServerTimeNotifier>();
+
+// Register the OpenIddict validation components.
+builder.Services.AddOpenIddict()
+    .AddValidation(options =>
+    {
+        // Note: the validation handler uses OpenID Connect discovery
+        // to retrieve the issuer signing keys used to validate tokens.
+        options.SetIssuer("https://localhost:44313/");
+        options.AddAudiences("sdc-resources");
+
+        // Register the encryption credentials. This sample uses a symmetric
+        // encryption key that is shared between the server and the Api2 sample
+        // (that performs local token validation instead of using introspection).
+        //
+        // Note: in a real world application, this encryption key should be
+        // stored in a safe place (e.g in Azure KeyVault, stored as a secret).
+        options
+            .AddEncryptionCertificate(OpenIddictHelpers.LoadEncryptionCertificate())
+            .AddSigningCertificate(OpenIddictHelpers.LoadSigningCertificate());
+
+        // Register the System.Net.Http integration.
+        options.UseSystemNetHttp();
+
+        // Register the ASP.NET Core host.
+        options.UseAspNetCore();
+    });
+
 builder.Services.AddCors();
 
-// Microsoft.AspNetCore.Authentication.JwtBearer
+builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
 // Services
 builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
@@ -40,7 +67,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
-// Microsoft.AspNetCore.Authentication.JwtBearer
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseHttpsRedirection();

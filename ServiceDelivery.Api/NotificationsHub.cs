@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using ServiceDelivery.Api.Services;
@@ -17,13 +18,16 @@ public class NotificationsHub : Hub<INotificationClient>
 
     public override async Task OnConnectedAsync()
     {
-        var userId = Context.User?.Identity?.Name;
+        var userId = Context.User?.FindFirst("sub")?.Value;
+        var name = Context.User?.FindFirst("name")?.Value; // 'name', not 'Name'
+        var email = Context.User?.FindFirst("email")?.Value;
+
         if (!string.IsNullOrEmpty(userId))
         {
             _connectionManager.AddConnection(userId, Context.ConnectionId);
         }
 
-        await Clients.Client(Context.ConnectionId).ReceiveNotification($"Thank you for connecting {userId}");
+        await Clients.Client(Context.ConnectionId).ReceiveNotification($"You are connected, {name}!");
         await base.OnConnectedAsync();
     }
 
