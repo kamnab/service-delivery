@@ -1,0 +1,27 @@
+﻿@page "/user/token"
+@attribute [Authorize]
+@inject IAccessTokenProvider TokenProvider
+
+<h3>Token Fetch Example</h3>
+
+<button @onclick="GetToken">Get Access Token</button>
+
+<p>@accessToken</p>
+
+@code {
+    private string? accessToken;
+
+    private async Task GetToken()
+    {
+        var result = await TokenProvider.RequestAccessToken();
+        if (result.TryGetToken(out var token))
+        {
+            accessToken = token.Value;
+            Console.WriteLine("Access Token: " + accessToken);
+        }
+        else
+        {
+            accessToken = "Failed to get token.";
+        }
+    }
+}
