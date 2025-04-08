@@ -18,6 +18,17 @@ public class NotificationsHub : Hub<INotificationClient>
 
     public override async Task OnConnectedAsync()
     {
+#if DEBUG
+        var claims = Context.User?.Claims;
+        if (claims != null)
+        {
+            foreach (var claim in claims)
+            {
+                Console.WriteLine($"{claim.Type}: {claim.Value}");
+            }
+        }
+#endif
+
         var userId = Context.User?.FindFirst("sub")?.Value;
         var name = Context.User?.FindFirst("name")?.Value; // 'name', not 'Name'
         var email = Context.User?.FindFirst("email")?.Value;
