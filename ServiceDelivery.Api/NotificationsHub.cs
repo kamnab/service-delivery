@@ -1,5 +1,3 @@
-using System;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using ServiceDelivery.Api.Services;
@@ -19,33 +17,40 @@ public class NotificationsHub : Hub<INotificationClient>
     public override async Task OnConnectedAsync()
     {
 #if DEBUG
-        var claims = Context.User?.Claims;
-        if (claims != null)
-        {
-            foreach (var claim in claims)
-            {
-                Console.WriteLine($"{claim.Type}: {claim.Value}");
-            }
-        }
+        // var claims = Context.User?.Claims;
+        // if (claims != null)
+        // {
+        //     foreach (var claim in claims)
+        //     {
+        //         Console.WriteLine($"{claim.Type}: {claim.Value}");
+        //     }
+        // }
 #endif
 
         var userId = Context.User?.FindFirst("sub")?.Value;
         var name = Context.User?.FindFirst("name")?.Value; // 'name', not 'Name'
         var email = Context.User?.FindFirst("email")?.Value;
 
-        if (!string.IsNullOrEmpty(userId))
+        if (string.IsNullOrEmpty(userId))
         {
-            _connectionManager.AddConnection(userId, Context.ConnectionId);
+            // Unauthorized user trying to connect, disconnect immediately
+            await Clients.Client(Context.ConnectionId).ReceiveNotification("Unauthorized user.");
+            await DisconnectClient(Context.ConnectionId);
+            return;
         }
+
+        _connectionManager.AddConnection(userId, Context.ConnectionId);
+        await NotifyConnectionCountChanged(userId);
 
         await Clients.Client(Context.ConnectionId).ReceiveNotification($"You are connected, {name}!");
         await base.OnConnectedAsync();
+
     }
 
     // On client disconnected
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        var userId = Context.User?.Identity?.Name;
+        var userId = Context.User?.FindFirst("sub")?.Value;
 
         Console.WriteLine($"[{DateTime.Now:dd-MM-yy HH:mm:ss}] [{userId}] {nameof(OnDisconnectedAsync)}");
 
@@ -61,6 +66,8 @@ public class NotificationsHub : Hub<INotificationClient>
             // Remove the connection from the manager
             _connectionManager.RemoveConnection(userId, Context.ConnectionId);
 
+            await NotifyConnectionCountChanged(userId);
+
             // Notify remaining clients
             //await Clients.All.ReceiveNotification($"User {userId} disconnected.");
         }
@@ -68,9 +75,39 @@ public class NotificationsHub : Hub<INotificationClient>
         await base.OnDisconnectedAsync(exception); // Call the base method
     }
 
+    public async Task NotifyConnectionCountChanged(string userId)
+    {
+        var count = _connectionManager.GetConnections(userId).Count();
+        await Clients.User(userId).ConnectionCountUpdated(count);
+    }
+
+    public Task Heartbeat()
+    {
+        var userId = Context.User?.FindFirst("sub")?.Value;
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Task.CompletedTask; // Don't update last seen if user is unauthorized
+        }
+
+        _connectionManager.UpdateLastSeen(userId, Context.ConnectionId);
+        return Task.CompletedTask;
+    }
+
+    // You can trigger this manually when needed to disconnect a client
+    private async Task DisconnectClient(string connectionId)
+    {
+        await Clients.Client(connectionId).ForceDisconnect();
+        Context.Abort(); // Force the client to disconnect
+    }
+
+
 }
 
 public interface INotificationClient
 {
     Task ReceiveNotification(string message);
+    Task ConnectionCountUpdated(int count);
+    Task Heartbeat();
+    Task ForceDisconnect(); // This is used to trigger disconnection from the server side
 }

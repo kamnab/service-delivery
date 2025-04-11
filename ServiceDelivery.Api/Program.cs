@@ -14,8 +14,11 @@ builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:5001");
 builder.Services.AddEndpointsApiExplorer(); // Needed for minimal APIs
 builder.Services.AddSwaggerGen(); // Adds full Swagger UI support
 
-builder.Services.AddSignalR();
-
+builder.Services.AddSignalR(options =>
+{
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15); // How often server pings the client
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30); // If no message is received in this time, disconnect
+});
 // builder.Services.AddHostedService<ServerTimeNotifier>();
 
 // Register the OpenIddict validation components.
@@ -51,6 +54,9 @@ builder.Services.AddAuthorization();
 
 // Services
 builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
+builder.Services.AddSingleton<IUserIdProvider, NameIdentifierProvider>();
+
+builder.Services.AddHostedService<StaleConnectionCleanupService>();
 
 var app = builder.Build();
 
@@ -103,6 +109,13 @@ app.MapPost("/api/v1/connections/send/{userId}", async (string userId, string me
     return Results.Ok(new { Message = "Notification sent successfully." });
 });
 
+app.MapPost("/api/v1/connections/close/{connectionId}", async (string connectionId, IHubContext<NotificationsHub, INotificationClient> hubContext) =>
+{
+    // Invoke the ForceDisconnect method in the hub
+    await hubContext.Clients.Client(connectionId).ForceDisconnect();
+
+    return Results.Ok(new { Message = $"{connectionId} is disconnecting." });
+});
 
 #endregion
 

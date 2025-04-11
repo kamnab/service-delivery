@@ -3,6 +3,8 @@
 
 @inject NavigationManager Navigation
 
+<InitiateConnection />
+
 <AuthorizeView>
     <Authorized>
         <a href="authentication/profile">Hello, @context.User.Identity.Name!</a>

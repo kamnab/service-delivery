@@ -1,0 +1,64 @@
+﻿@inject SignalRService SignalRService
+@inject NavigationManager Navigation
+
+@if (SignalRService.ConnectionStatus == "Connected")
+{
+    <p style="color: green;margin:0;">
+        🟢 Online <span style="font-size: 0.7em;">@(ConnectionCount > 1 ? $"({ConnectionCount})" : "")</span>
+    </p>
+}
+else if (SignalRService.ConnectionStatus == "Reconnecting...")
+{
+    <p style="color: orange;margin:0;">🟠 Reconnecting...</p>
+}
+else
+{
+    <p style="color: red;margin:0;">🔴 @SignalRService.ConnectionStatus</p>
+}
+
+@code {
+    private int ConnectionCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        SignalRService.OnConnectionCountChanged += UpdateConnectionCount;
+        SignalRService.OnConnectionChanged += OnConnectionChanged;
+        SignalRService.OnMessageReceived += OnMessageReceived;
+        SignalRService.OnForceDisconnect += OnForceDisconnect;
+        await SignalRService.InitializeAsync();
+    }
+
+    private void OnConnectionChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnMessageReceived(string message)
+    {
+        Console.WriteLine(message);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnForceDisconnect()
+    {
+        Console.WriteLine("Disconnected by the server.");
+        Navigation.NavigateTo("/", forceLoad: true);
+
+        //await InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateConnectionCount(int count)
+    {
+        Console.WriteLine($"UpdateConnectionCount: {count}");
+        ConnectionCount = count;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        SignalRService.OnConnectionChanged -= OnConnectionChanged;
+        SignalRService.OnMessageReceived -= OnMessageReceived;
+        SignalRService.OnForceDisconnect -= OnForceDisconnect;
+        SignalRService.OnConnectionCountChanged -= UpdateConnectionCount;
+    }
+}

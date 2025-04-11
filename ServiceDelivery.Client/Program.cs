@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using ServiceDelivery.Client;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<App>("#kt_wrapper");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 #region Balosar.ServerAPI
@@ -48,5 +48,8 @@ builder.Services.AddOidcAuthentication(options =>
 });
 
 #endregion
+
+builder.Services.AddScoped<SignalRService>();
+
 
 await builder.Build().RunAsync();

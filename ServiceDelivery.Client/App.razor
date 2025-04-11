@@ -1,5 +1,5 @@
-﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-<CascadingAuthenticationState>
+﻿<CascadingAuthenticationState>
+
     <Router AppAssembly="@typeof(Program).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
@@ -12,6 +12,7 @@
                     {
                         <p>You are not authorized to access this resource.</p>
                     }
+
                 </NotAuthorized>
             </AuthorizeRouteView>
         </Found>

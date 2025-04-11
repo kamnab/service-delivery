@@ -1,0 +1,43 @@
+﻿@* @attribute [Authorize]
+@using Microsoft.AspNetCore.SignalR.Client
+@inject IAccessTokenProvider TokenProvider
+@inject NavigationManager Navigation
+@inject SignalRService SignalR
+
+@if (SignalR.ConnectionStatus == "Connected")
+{
+    <p style="color: green;">🟢 Connected</p>
+}
+else if (SignalR.ConnectionStatus == "Reconnecting...")
+{
+    <p style="color: orange;">🟠 Reconnecting...</p>
+}
+else
+{
+    <p style="color: red;">🔴 @SignalR.ConnectionStatus</p>
+}
+
+<ul>
+    @foreach (var msg in _messages)
+    {
+        <li>@msg</li>
+    }
+</ul>
+
+@code {
+    private List<string> _messages = new();
+
+    protected override void OnInitialized()
+    {
+        SignalR.OnMessageReceived += msg =>
+        {
+            _messages.Add(msg);
+            InvokeAsync(StateHasChanged);
+        };
+    }
+
+    public void Dispose()
+    {
+        SignalR.OnMessageReceived -= null;
+    }
+} *@
