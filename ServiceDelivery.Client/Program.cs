@@ -1,11 +1,18 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.EntityFrameworkCore;
 using ServiceDelivery.Client;
+using SQLitePCL;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#kt_wrapper");
 builder.RootComponents.Add<HeadOutlet>("head::after");
+
+// Enable SQLite WASM experimental setup
+Batteries_V2.Init();
+
+builder.Services.AddClientSideDataDbContext();
 
 #region Balosar.ServerAPI
 
@@ -50,6 +57,17 @@ builder.Services.AddOidcAuthentication(options =>
 #endregion
 
 builder.Services.AddScoped<SignalRService>();
+builder.Services.AddScoped<DatabaseSeeder>();
 
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+
+// Seed data here
+using (var scope = host.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+    await seeder.SeedAsync();
+}
+
+await host.RunAsync();
+

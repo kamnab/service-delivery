@@ -1,0 +1,21 @@
+@page "/todo"
+@using Microsoft.EntityFrameworkCore
+@inject ClientSideDbContext DbContext
+
+<h3>Todo List</h3>
+
+<ul>
+    @foreach (var todo in todos)
+    {
+        <li>@todo.Name - @todo.IsCompleted</li>
+    }
+</ul>
+
+@code {
+    private List<TodoItem> todos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        todos = await DbContext.TodoItems.ToListAsync();
+    }
+}
