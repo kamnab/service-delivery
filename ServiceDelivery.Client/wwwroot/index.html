@@ -21,6 +21,16 @@
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
     <!--end::Global Stylesheets Bundle-->
+
+    <link rel="manifest" href="manifest.webmanifest">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.published.js')
+                .then(() => console.log('✅ Service worker registered.'))
+                .catch(err => console.error('❌ Service worker registration error:', err));
+        }
+    </script>
+
 </head>
 
 
