@@ -58,15 +58,19 @@ builder.Services.AddOidcAuthentication(options =>
 
 builder.Services.AddScoped<SignalRService>();
 builder.Services.AddScoped<DatabaseSeeder>();
-
+builder.Services.AddSingleton<UpdateNotifier>();
 
 var host = builder.Build();
+
+// Initialize bridge with service
+var notifier = host.Services.GetRequiredService<UpdateNotifier>();
+JsInteropUpdateBridge.Init(notifier);
 
 // Seed data here
 using (var scope = host.Services.CreateScope())
 {
     var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-    await seeder.SeedAsync();
+    Task.Run(seeder.SeedAsync);
 }
 
 await host.RunAsync();

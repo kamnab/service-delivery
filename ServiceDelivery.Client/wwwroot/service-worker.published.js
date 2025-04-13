@@ -1,38 +1,42 @@
-const CACHE_VERSION = 'v1';
-const CACHE_NAME = `sdc-cache-${CACHE_VERSION}`;
+self.importScripts('service-worker-assets.js');
+
+const CACHE_NAME = 'sdc-cache-v1';
+const ASSETS = self.assetsManifest?.assets?.map(asset => asset.url) || [];
 
 self.addEventListener('install', event => {
-    console.log('[SW] Install');
-    self.skipWaiting();
+    console.log('[SW] Installing...');
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => cache.addAll(ASSETS))
+            .then(() => self.skipWaiting())
+    );
 });
 
 self.addEventListener('activate', event => {
-    console.log('[SW] Activate');
+    console.log('[SW] Activating...');
     event.waitUntil(
-        caches.keys().then(keys => {
-            return Promise.all(
-                keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-            );
-        })
+        caches.keys().then(keys =>
+            Promise.all(keys
+                .filter(key => key !== CACHE_NAME)
+                .map(key => caches.delete(key))
+            )
+        )
     );
-    return self.clients.claim();
+    event.waitUntil(self.clients.claim());
+
+    // Notify client(s) of new version
+    self.clients.matchAll({ includeUncontrolled: true }).then(clients => {
+        for (const client of clients) {
+            client.postMessage({ type: 'app-update-available' });
+        }
+    });
 });
 
 self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
 
     event.respondWith(
-        caches.match(event.request).then(cachedResponse => {
-            return cachedResponse || fetch(event.request)
-                .then(response => {
-                    return caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, response.clone());
-                        return response;
-                    });
-                });
-        }).catch(() => {
-            // Optional: offline fallback page or image
-            return caches.match('/offline.html');
-        })
+        caches.match(event.request)
+            .then(cached => cached || fetch(event.request))
     );
 });

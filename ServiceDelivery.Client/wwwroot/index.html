@@ -23,13 +23,7 @@
     <!--end::Global Stylesheets Bundle-->
 
     <link rel="manifest" href="manifest.webmanifest">
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.published.js')
-                .then(() => console.log('✅ Service worker registered.'))
-                .catch(err => console.error('❌ Service worker registration error:', err));
-        }
-    </script>
+
 
 </head>
 
@@ -1241,6 +1235,22 @@
     <!-- <script src="/assets/js/custom/modals/users-search.js"></script> -->
     <!--end::Page Custom Javascript-->
     <!--end::Javascript-->
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.published.js')
+                .then(reg => {
+                    reg.onupdatefound = () => {
+                        const installing = reg.installing;
+                        installing.onstatechange = () => {
+                            if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                                window.dispatchEvent(new CustomEvent('app-update-available'));
+                            }
+                        };
+                    };
+                });
+        }
+    </script>
 </body>
 
 </html>
