@@ -1,0 +1,39 @@
+@inject IJSRuntime JS
+
+@if (_updateAvailable)
+{
+    <div class="update-toast">
+        🔄 New data is available.
+        <button @onclick="Reload">Reload</button>
+    </div>
+}
+
+@code {
+    private bool _updateAvailable = false;
+    private DotNetObjectReference<UpdateDataPrompt>? _dotNetRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("dataUpdateInterop.registerDataUpdatePrompt", _dotNetRef);
+        }
+    }
+
+    [JSInvokable]
+    public Task TriggerUpdateInstance(string url)
+    {
+        Console.WriteLine($"[Blazor] Fresh data available for {url}");
+        _updateAvailable = true;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private void Reload() => JS.InvokeVoidAsync("location.reload");
+
+    public void Dispose()
+    {
+        _dotNetRef?.Dispose();
+    }
+}

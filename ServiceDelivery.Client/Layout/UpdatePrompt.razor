@@ -1,0 +1,37 @@
+@inject IJSRuntime JS
+
+@if (show)
+{
+    <div class="update-prompt">
+        <p>🚀 New version available!</p>
+        <button @onclick="Reload">Reload</button>
+    </div>
+}
+
+@code {
+    private bool show = false;
+    private DotNetObjectReference<UpdatePrompt>? dotNetRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("registerUpdatePrompt", dotNetRef);
+        }
+    }
+
+    [JSInvokable]
+    public async Task TriggerUpdateInstance()
+    {
+        show = true;
+        StateHasChanged();
+    }
+
+    private void Reload() => JS.InvokeVoidAsync("location.reload");
+
+    public async ValueTask DisposeAsync()
+    {
+        dotNetRef?.Dispose();
+    }
+}
