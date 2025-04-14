@@ -1,6 +1,6 @@
 self.importScripts('./service-worker-assets.js');
 
-const CACHE_NAME = 'sdc-cache-v1.3';
+const CACHE_NAME = 'sdc-cache-v1.311';
 const OFFLINE_FALLBACK_PAGE = 'offline.html';
 const SPA_FALLBACK_PAGE = 'index.html';
 const OFFLINE_URLS = [OFFLINE_FALLBACK_PAGE, SPA_FALLBACK_PAGE];
@@ -101,14 +101,15 @@ self.addEventListener('fetch', event => {
                     return networkResponse;
                 })
                 .catch(() => {
-                    // Fallback to cached response if network fails
                     if (request.mode === 'navigate') {
-                        return cache.match(SPA_FALLBACK_PAGE);
+                        return cache.match(SPA_FALLBACK_PAGE) ?? new Response("Offline fallback unavailable", { status: 503 });
                     }
+
                     if (request.destination === 'document') {
-                        return cache.match(OFFLINE_FALLBACK_PAGE);
+                        return cache.match(OFFLINE_FALLBACK_PAGE) ?? new Response("Offline fallback unavailable", { status: 503 });
                     }
-                    return cachedResponse || null;
+
+                    return cachedResponse ?? new Response("Not found in cache", { status: 404 });
                 });
 
             // Return cached content immediately, but revalidate in the background

@@ -10,3 +10,10 @@ window.dataUpdateInterop = {
         });
     }
 };
+
+
+/*
+1- Your service worker caches fresh data and posts a message (type: 'data-update-available')
+2- Your JS interop listens and calls TriggerUpdateInstance(url) on Blazor
+3- Blazor shows a nice toast, prompting the user to reload for fresh data
+*/

@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
+<NetworkStatusToast />
+
 <div class="page">
     @* <div class="sidebar">
         <NavMenu />
@@ -72,5 +74,40 @@
         padding: 0.5rem 0.75rem;
         border-radius: 6px;
         cursor: pointer;
+    }
+</style>
+
+<style>
+    .network-toast {
+        position: fixed;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        z-index: 9999;
+        animation: fade 0.3s ease-in-out;
+    }
+
+    .network-toast.online {
+        background-color: #28a745;
+    }
+
+    .network-toast.offline {
+        background-color: #dc3545;
+    }
+
+    @@keyframes fade {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
     }
 </style>

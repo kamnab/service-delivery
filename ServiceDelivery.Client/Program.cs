@@ -50,6 +50,7 @@ builder.Services.AddOidcAuthentication(options =>
 #endregion
 
 builder.Services.AddScoped<SignalRService>();
+builder.Services.AddScoped<NetworkStatusService>();
 
 var host = builder.Build();
 

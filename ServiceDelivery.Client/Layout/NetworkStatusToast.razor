@@ -1,0 +1,38 @@
+@inject IJSRuntime JS
+@inject NetworkStatusService NetworkStatusService
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <div class="network-toast @(_isOnline ? "online" : "offline")">
+        @_message
+    </div>
+}
+
+@code {
+    private string? _message;
+    private bool _isOnline;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("networkStatusInterop.init", DotNetObjectReference.Create(this));
+        }
+    }
+
+    [JSInvokable]
+    public async Task SetNetworkStatus(bool isOnline)
+    {
+        await NetworkStatusService.SetOnlineStatus(isOnline);
+
+        _isOnline = isOnline;
+        _message = isOnline ? "✅ You are back online!" : "⚠️ You are offline.";
+        StateHasChanged();
+
+        await Task.Delay(2000).ContinueWith(_ =>
+        {
+            _message = null;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+}

@@ -17,11 +17,12 @@ public class SignalRService : IAsyncDisposable
     public event Action? OnConnectionChanged; // 🔔 Notify UI
     public event Func<Task>? OnForceDisconnect;
     public event Action<int>? OnConnectionCountChanged;
-
-    public SignalRService(IAccessTokenProvider tokenProvider, NavigationManager navigation)
+    private readonly NetworkStatusService _networkStatus;
+    public SignalRService(IAccessTokenProvider tokenProvider, NavigationManager navigation, NetworkStatusService networkStatus)
     {
         _tokenProvider = tokenProvider;
         _navigation = navigation;
+        _networkStatus = networkStatus;
     }
 
     public async Task InitializeAsync()
@@ -77,7 +78,11 @@ public class SignalRService : IAsyncDisposable
         _hubConnection.Closed += async error =>
         {
             UpdateStatus("Offline");
-            await RetryConnectIndefinitely();
+
+            if (_networkStatus.IsOnline)
+            {
+                await RetryConnectIndefinitely();
+            }
         };
 
         await RetryConnectIndefinitely(); // First connection attempt
@@ -129,6 +134,7 @@ public class SignalRService : IAsyncDisposable
     {
         if (_hubConnection is not null)
         {
+            await _hubConnection.StopAsync();
             await _hubConnection.DisposeAsync();
         }
     }
