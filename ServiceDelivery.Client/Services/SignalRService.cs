@@ -79,10 +79,8 @@ public class SignalRService : IAsyncDisposable
         {
             UpdateStatus("Offline");
 
-            if (_networkStatus.IsOnline)
-            {
-                await RetryConnectIndefinitely();
-            }
+            await RetryConnectIndefinitely();
+
         };
 
         await RetryConnectIndefinitely(); // First connection attempt
@@ -91,18 +89,21 @@ public class SignalRService : IAsyncDisposable
 
     private async Task RetryConnectIndefinitely()
     {
-        while (_hubConnection?.State == HubConnectionState.Disconnected)
+        if (_networkStatus.IsOnline)
         {
-            try
+            while (_hubConnection?.State == HubConnectionState.Disconnected)
             {
-                await _hubConnection.StartAsync();
-                UpdateStatus("Connected");
-                return;
-            }
-            catch
-            {
-                UpdateStatus("Retrying...");
-                await Task.Delay(5000); // wait 5 seconds before retrying
+                try
+                {
+                    await _hubConnection.StartAsync();
+                    UpdateStatus("Connected");
+                    return;
+                }
+                catch
+                {
+                    UpdateStatus("Retrying...");
+                    await Task.Delay(5000); // wait 5 seconds before retrying
+                }
             }
         }
     }
