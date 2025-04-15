@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
-<NetworkStatusToast />
+<NetworkStatusToast></NetworkStatusToast>
+<UpdatePrompt></UpdatePrompt>
 
 <div class="page">
     @* <div class="sidebar">
@@ -8,49 +9,15 @@
     </div> *@
 
     <main>
-        <div class="top-row px-4 auth">
-            <LoginDisplay />
+        <div class="top-row px-4">
+            <LoginDisplay></LoginDisplay>
         </div>
-
-        <UpdatePrompt></UpdatePrompt>
-
-        <article class="content px-4">
-            @Body
-        </article>
     </main>
 </div>
 
-<style>
-    .update-prompt {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        background-color: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 15px;
-        border-radius: 5px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    }
-
-    .update-prompt-message {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .update-prompt button {
-        background-color: #4caf50;
-        color: white;
-        border: none;
-        padding: 10px;
-        cursor: pointer;
-        border-radius: 5px;
-    }
-
-    .update-prompt button:hover {
-        background-color: #45a049;
-    }
-</style>
+<div class="d-flex flex-column flex-column-fluid">
+    @Body
+</div>
 
 <style>
     .update-toast {
@@ -109,5 +76,38 @@
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+    }
+</style>
+
+<style>
+    .update-prompt {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
+
+    .update-prompt-message {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .update-prompt button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .update-prompt button:hover {
+        background-color: #45a049;
     }
 </style>
