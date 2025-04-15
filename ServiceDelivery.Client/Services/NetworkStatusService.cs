@@ -9,7 +9,8 @@ public class NetworkStatusService
         if (IsOnline != isOnline)
         {
             IsOnline = isOnline;
-            await OnStatusChanged?.Invoke();
+            if (OnStatusChanged != null)
+                await OnStatusChanged.Invoke();
         }
     }
 }

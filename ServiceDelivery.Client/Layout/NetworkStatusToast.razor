@@ -16,6 +16,12 @@
     {
         if (firstRender)
         {
+            // Get initial network status without triggering a toast
+            _isOnline = await JS.InvokeAsync<bool>("networkStatusInterop.getOnlineStatus");
+            await NetworkStatusService.SetOnlineStatus(_isOnline);
+            NetworkStatusService.OnStatusChanged += ShowToast;
+
+            // Then start listening for changes
             await JS.InvokeVoidAsync("networkStatusInterop.init", DotNetObjectReference.Create(this));
         }
     }
@@ -24,15 +30,16 @@
     public async Task SetNetworkStatus(bool isOnline)
     {
         await NetworkStatusService.SetOnlineStatus(isOnline);
+    }
 
-        _isOnline = isOnline;
-        _message = isOnline ? "✅ You are back online!" : "⚠️ You are offline.";
+    private async Task ShowToast()
+    {
+        _isOnline = NetworkStatusService.IsOnline;
+        _message = _isOnline ? "✅ You are back online!" : "⚠️ You are offline.";
         StateHasChanged();
 
-        await Task.Delay(2000).ContinueWith(_ =>
-        {
-            _message = null;
-            InvokeAsync(StateHasChanged);
-        });
+        await Task.Delay(2000);
+        _message = null;
+        await InvokeAsync(StateHasChanged);
     }
 }
