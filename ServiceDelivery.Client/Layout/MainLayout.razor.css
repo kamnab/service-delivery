@@ -38,6 +38,7 @@ main {
     text-overflow: ellipsis;
 }
 
+/* 
 @media (max-width: 640.98px) {
     .top-row {
         justify-content: space-between;
@@ -78,4 +79,4 @@ main {
         padding-left: 2rem !important;
         padding-right: 1.5rem !important;
     }
-}
+} */
