@@ -1,7 +1,7 @@
 [build]
   base = "ServiceDelivery.Client"
-  publish = "ServiceDelivery.Client/publish/wwwroot"
   command = "dotnet publish -c Release -o publish"
+  publish = "publish/wwwroot"
 
 [[redirects]]
   from = "/*"
