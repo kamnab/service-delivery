@@ -4,7 +4,7 @@ using ServiceDelivery.Api.Services;
 
 namespace ServiceDelivery.Api;
 
-[Authorize]
+// [Authorize]
 public class NotificationsHub : Hub<INotificationClient>
 {
     private readonly IConnectionManager _connectionManager;
@@ -33,10 +33,11 @@ public class NotificationsHub : Hub<INotificationClient>
 
         if (string.IsNullOrEmpty(userId))
         {
+            userId = "[GUEST] " + Context.ConnectionId;
             // Unauthorized user trying to connect, disconnect immediately
-            await Clients.Client(Context.ConnectionId).ReceiveNotification("Unauthorized user.");
-            await DisconnectClient(Context.ConnectionId);
-            return;
+            // await Clients.Client(Context.ConnectionId).ReceiveNotification("Unauthorized user.");
+            // await DisconnectClient(Context.ConnectionId);
+            // return;
         }
 
         _connectionManager.AddConnection(userId, Context.ConnectionId);
