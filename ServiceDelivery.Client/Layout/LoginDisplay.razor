@@ -2,6 +2,8 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
 @inject NavigationManager Navigation
+@inject NetworkStatusService NetworkStatusService
+@inject IJSRuntime JS
 
 
 <AuthorizeView>
@@ -11,13 +13,31 @@
     </Authorized>
     <NotAuthorized>
         @* <a href="authentication/register">Register</a> *@
-        <a href="authentication/login">Log in</a>
+        <button class="nav-link btn btn-link" @onclick="Login">Log in</button>
     </NotAuthorized>
 </AuthorizeView>
 
 @code {
-    private void BeginSignOut(MouseEventArgs args)
+    private async Task BeginSignOut(MouseEventArgs args)
     {
+        if (!NetworkStatusService.IsOnline)
+        {
+            await NetworkStatusService.ShowToast();
+            return;
+        }
+
         Navigation.NavigateToLogout("authentication/logout");
+    }
+}
+@code {
+    private async Task Login()
+    {
+        if (!NetworkStatusService.IsOnline)
+        {
+            await NetworkStatusService.ShowToast();
+            return;
+        }
+
+        Navigation.NavigateTo("authentication/login");
     }
 }

@@ -10,7 +10,18 @@ public class NetworkStatusService
         {
             IsOnline = isOnline;
             if (OnStatusChanged != null)
-                await OnStatusChanged.Invoke();
+                await OnStatusChanged.Invoke();  // Notify the subscriber of the change
+        }
+    }
+
+    // Toast event triggered by external components
+    public event Func<Task>? OnShowToast;
+
+    public async Task ShowToast()
+    {
+        if (OnShowToast != null)
+        {
+            await OnShowToast.Invoke();  // Trigger toast display from external event
         }
     }
 }
