@@ -1,0 +1,9 @@
+[build]
+  base = "ServiceDelivery.Client"
+  publish = "ServiceDelivery.Client/publish/wwwroot"
+  command = "dotnet publish -c Release -o publish"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

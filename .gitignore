@@ -1,3 +1,5 @@
 ServiceDelivery.Client/wwwroot/assets
 ServiceDelivery.Client/Requirement2.txt
 ServiceDelivery.Client/Requirement.txt
+# Local Netlify folder
+.netlify
