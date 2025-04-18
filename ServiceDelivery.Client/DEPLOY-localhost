@@ -1,0 +1,9 @@
+
+
+
+docker build -t my-blazor-pwa .
+docker run -d -p 5081:80 -p 5080:443 --name my-blazor-pwa-container my-blazor-pwa
+
+
+
+I want a base Dockerfile template that auto-generates the cert uses Nginx

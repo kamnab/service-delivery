@@ -34,6 +34,18 @@
             </div>
         </div>
     </CompletingLogOut>
+    <UserProfile>
+        <AuthorizeView>
+            <Authorized>
+                <div class="text-center p-4">
+                    <UserToken />
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <RedirectToLogin />
+            </NotAuthorized>
+        </AuthorizeView>
+    </UserProfile>
 </RemoteAuthenticatorView>
 
 @code {
