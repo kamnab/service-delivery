@@ -1,0 +1,36 @@
+@* 
+This component checks:
+1. If user is offline → show an offline-friendly message.
+2. If user is online and not authenticated → redirect to login.
+3. If user is authenticated but still not authorized → show an access denied message. 
+*@
+@inject NetworkStatusService NetworkStatusService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
+
+@if (!isOnline)
+{
+    <p>You are offline. This page requires login when online.</p>
+}
+else if (!isAuthenticated)
+{
+    <RedirectToLogin />
+}
+else
+{
+    <p>You are not authorized to access this page.</p>
+}
+
+@code {
+    private bool isOnline;
+    private bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isOnline = NetworkStatusService.IsOnline;
+
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity?.IsAuthenticated == true;
+    }
+}

@@ -1,6 +1,40 @@
 ﻿@page "/authentication/{action}"
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-<RemoteAuthenticatorView Action="@Action" />
+
+<RemoteAuthenticatorView Action="@Action">
+    <LoggingIn>
+        <div class="text-center p-4">
+            @* <p class="text-lg font-semibold">Signing you in…</p> *@
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading…</span>
+            </div>
+        </div>
+    </LoggingIn>
+    <CompletingLoggingIn>
+        <div class="text-center p-4">
+            @* <p class="text-lg font-semibold">Signing you in…</p> *@
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading…</span>
+            </div>
+        </div>
+    </CompletingLoggingIn>
+    <LogOut>
+        <div class="text-center p-4">
+            @* <p class="text-lg font-semibold">Signing you in…</p> *@
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading…</span>
+            </div>
+        </div>
+    </LogOut>
+    <CompletingLogOut>
+        <div class="text-center p-4">
+            @* <p class="text-lg font-semibold">Signing you in…</p> *@
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading…</span>
+            </div>
+        </div>
+    </CompletingLogOut>
+</RemoteAuthenticatorView>
 
 @code {
     [Parameter] public string Action { get; set; }

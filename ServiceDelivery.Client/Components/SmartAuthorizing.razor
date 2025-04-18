@@ -1,0 +1,31 @@
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NetworkStatusService NetworkStatusService
+
+@if (showLoader)
+{
+    @* <p class="d-flex justify-items-center">...Authorizing...</p> *@
+}
+
+@code {
+    private bool showLoader = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var isOnline = NetworkStatusService.IsOnline;
+
+        // If offline, don't show the "Authorizing..." message
+        if (!isOnline)
+        {
+            showLoader = false;
+            return;
+        }
+
+        // Check authentication state
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+
+        // Only show loader if not authenticated
+        showLoader = !isAuthenticated;
+    }
+}
