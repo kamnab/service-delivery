@@ -17,7 +17,7 @@ public class NetworkStatusService
     // Toast event triggered by external components
     public event Func<Task>? OnShowToast;
 
-    public async Task ShowToast()
+    public async Task ShowToast(string message = "")
     {
         if (OnShowToast != null)
         {
