@@ -1,43 +1,86 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using System.Security.Claims
+@implements IDisposable
 
+@inject AuthenticationStateProvider AuthProvider
 @inject NavigationManager Navigation
 @inject NetworkStatusService NetworkStatusService
 @inject IJSRuntime JS
 
-
-<AuthorizeView>
-    <Authorized>
-        <a href="authentication/profile">Hello, @context.User?.Identity?.Name!</a>
-        <button class="nav-link btn btn-link" @onclick="BeginSignOut">Log out</button>
-    </Authorized>
-    <NotAuthorized>
-        @* <a href="authentication/register">Register</a> *@
-        <button class="nav-link btn btn-link" @onclick="Login">Log in</button>
-    </NotAuthorized>
-</AuthorizeView>
+@if (isLoading)
+{
+    <text>...</text>
+}
+else if (isAuthenticated)
+{
+    <a href="authentication/profile">Hello, @user?.Identity?.Name!</a>
+    <button class="nav-link btn btn-link" @onclick="BeginSignOut">Log out</button>
+}
+else
+{
+    <button class="nav-link btn btn-link" @onclick="Login">Log in</button>
+}
 
 @code {
-    private async Task BeginSignOut(MouseEventArgs args)
+    private bool isAuthenticated;
+    private bool isLoading = true;
+    private ClaimsPrincipal user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthProvider.AuthenticationStateChanged += OnAuthStateChanged;
+        await UpdateAuthState();
+    }
+
+    private void SetAuthStateFromUser(ClaimsPrincipal principal)
+    {
+        user = principal;
+        isAuthenticated = user.Identity?.IsAuthenticated == true;
+    }
+
+    private async void OnAuthStateChanged(Task<AuthenticationState> task)
+    {
+        var state = await task;
+        SetAuthStateFromUser(state.User);
+
+        Console.WriteLine($"[Auth] State changed: {isAuthenticated}, {user.Identity?.Name}");
+        StateHasChanged();
+    }
+
+    private async Task UpdateAuthState()
+    {
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        SetAuthStateFromUser(authState.User);
+
+        Console.WriteLine($"[Auth] IsAuthenticated: {isAuthenticated}, User: {user.Identity?.Name}");
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task BeginSignOut()
     {
         if (!NetworkStatusService.IsOnline)
         {
-            await NetworkStatusService.ShowToast();
+            await NetworkStatusService.ShowToast("Logout queued. It will be processed when online.");
             return;
         }
 
         Navigation.NavigateToLogout("authentication/logout");
     }
-}
-@code {
+
     private async Task Login()
     {
         if (!NetworkStatusService.IsOnline)
         {
-            await NetworkStatusService.ShowToast();
+            await NetworkStatusService.ShowToast("You're offline. Please connect to the internet to log in.");
             return;
         }
 
         Navigation.NavigateTo("authentication/login");
+    }
+
+    public void Dispose()
+    {
+        AuthProvider.AuthenticationStateChanged -= OnAuthStateChanged;
     }
 }

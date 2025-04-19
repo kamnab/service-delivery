@@ -1,6 +1,6 @@
 self.importScripts('./service-worker-assets.js');
 
-const CACHE_NAME = 'sdc-cache-v1.100';
+const CACHE_NAME = 'sdc-cache-v1.101';
 const OFFLINE_FALLBACK_PAGE = 'offline.html';
 const SPA_FALLBACK_PAGE = 'index.html';
 const OFFLINE_URLS = [OFFLINE_FALLBACK_PAGE, SPA_FALLBACK_PAGE];

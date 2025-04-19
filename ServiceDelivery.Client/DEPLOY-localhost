@@ -2,8 +2,13 @@
 
 
 docker build -t my-blazor-pwa .
-docker run -d -p 5081:80 -p 5080:443 --name my-blazor-pwa-container my-blazor-pwa
+docker run -d -p 5081:80 --name my-blazor-pwa-container my-blazor-pwa
 
 
 
 I want a base Dockerfile template that auto-generates the cert uses Nginx
+
+
+sudo dotnet workload install wasm-tools-net8
+RUN dotnet publish "ServiceDelivery.Client.csproj" -c Release -p:RunAOTCompilation=true -p:PublishTrimmed=true -o /app/publish
+

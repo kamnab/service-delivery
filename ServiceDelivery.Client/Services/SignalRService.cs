@@ -83,8 +83,8 @@ public class SignalRService : IAsyncDisposable
 
         };
 
-        await RetryConnectIndefinitely(); // First connection attempt
-        _ = StartHeartbeatLoop();         // 🔁 Start heartbeat loop after initial connect
+        // await RetryConnectIndefinitely(); // First connection attempt
+        // _ = StartHeartbeatLoop();         // 🔁 Start heartbeat loop after initial connect
     }
 
     private async Task RetryConnectIndefinitely()

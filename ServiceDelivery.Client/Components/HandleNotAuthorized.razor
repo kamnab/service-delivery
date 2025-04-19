@@ -32,5 +32,6 @@ else
 
         var authState = await AuthProvider.GetAuthenticationStateAsync();
         isAuthenticated = authState.User.Identity?.IsAuthenticated == true;
+
     }
 }
