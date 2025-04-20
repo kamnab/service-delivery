@@ -20,24 +20,21 @@ RUN apt-get update && apt-get install -y python3 && \
 RUN dotnet workload install wasm-tools-net8
 
 # Publish with AOT, trimming, and Brotli compression enabled
-RUN dotnet publish "ServiceDelivery.Client.csproj" \
-    -c Release \
-    -p:RunAOTCompilation=true \
-    -p:PublishTrimmed=true \
-    -p:BlazorEnableCompression=true \
-    -o /app/publish
+RUN dotnet publish "ServiceDelivery.Client.csproj" -c Release -o /app/publish
 
 # Stage 2: Serve the Blazor WASM app using nginx
 FROM nginx:alpine AS final
-
 # Copy the published files from the build step
 COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
 # Copy your self-signed certs and config into the image
 COPY ./nginx/certs /etc/nginx/certs/
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
+ARG Environment
+RUN sed -i "s/replaceme/${Environment}/" /etc/nginx/nginx.conf 
+
 # Expose port
-EXPOSE 80
+EXPOSE 80 443
 
 # Start Nginx to serve static files
 CMD ["nginx", "-g", "daemon off;"]

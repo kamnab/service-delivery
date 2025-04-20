@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <!-- <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest> -->
+    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,8 +15,15 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
   </ItemGroup>
 
-<!-- <ItemGroup>
-  <ServiceWorker Include="wwwroot/service-worker.js" 
-    PublishedContent="wwwroot/service-worker.published.js" />
-</ItemGroup> -->
+  <!-- Debug mode trimming for testing -->
+<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+  <PublishTrimmed>true</PublishTrimmed>
+  <BlazorWebAssemblyEnableLinking>true</BlazorWebAssemblyEnableLinking>
+  <WasmEnableRelinking>true</WasmEnableRelinking>
+  <RunAOTCompilation>true</RunAOTCompilation>
+  <BlazorEnableCompression>true</BlazorEnableCompression>
+  <InvariantGlobalization>true</InvariantGlobalization>
+</PropertyGroup>
+
+
 </Project>

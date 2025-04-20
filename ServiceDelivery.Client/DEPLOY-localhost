@@ -1,8 +1,17 @@
 
+--- On macOS Big Sur and later, use this command:
+- sudo lsof -i -P | grep LISTEN | grep :$PORT
+or to just see just IPv4:
+- sudo lsof -nP -i4TCP:$PORT | grep LISTEN
 
-
-docker build -t my-blazor-pwa .
-docker run -d -p 5081:80 --name my-blazor-pwa-container my-blazor-pwa
+On older versions, use one of the following forms:
+- sudo lsof -nP -iTCP:$PORT | grep LISTEN
+- sudo lsof -nP -i:$PORT | grep LISTEN
+--- 
+- sudo kill 38557 (PID)
+---
+docker build -t my-blazor-pwa . --build-arg Environment=Development
+docker run -d -p 5082:80 -p 5083:443 --name my-blazor-pwa-container my-blazor-pwa
 
 
 

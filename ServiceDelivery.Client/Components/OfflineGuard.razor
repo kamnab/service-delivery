@@ -1,0 +1,26 @@
+@inject NetworkStatusService NetworkStatusService
+
+@if (NetworkStatusService.IsOnline)
+{
+    @ChildContent
+}
+else if (!toastShown)
+{
+    <div class="text-center p-3 text-warning">You're offline</div>
+}
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool toastShown;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!NetworkStatusService.IsOnline && !toastShown)
+        {
+            toastShown = true;
+            await NetworkStatusService.ShowToast("You're offline");
+            StateHasChanged(); // re-render after toast
+        }
+    }
+}

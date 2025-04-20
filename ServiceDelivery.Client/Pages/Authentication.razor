@@ -33,21 +33,36 @@
                 <span class="sr-only">Loading…</span>
             </div>
         </div>
+
     </CompletingLogOut>
+    <LogOutSucceeded>
+        @RedirectAfterLogout()
+    </LogOutSucceeded>
     <UserProfile>
-        <AuthorizeView>
-            <Authorized>
-                <div class="text-center p-4">
-                    <UserToken />
-                </div>
-            </Authorized>
-            <NotAuthorized>
-                <RedirectToLogin />
-            </NotAuthorized>
-        </AuthorizeView>
+
+        <OfflineGuard>
+            <AuthorizeView>
+                <Authorized>
+                    <div class="text-center p-4">
+                        <UserToken />
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <RedirectToLogin />
+                </NotAuthorized>
+            </AuthorizeView>
+        </OfflineGuard>
+
     </UserProfile>
 </RemoteAuthenticatorView>
 
 @code {
     [Parameter] public string Action { get; set; }
+
+    [Inject]
+    private NavigationManager Navigation { get; set; }
+    private RenderFragment RedirectAfterLogout() => builder =>
+    {
+        Navigation.NavigateTo("/");
+    };
 }
