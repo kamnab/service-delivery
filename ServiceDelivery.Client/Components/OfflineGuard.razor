@@ -1,12 +1,12 @@
 @inject NetworkStatusService NetworkStatusService
 
-@if (NetworkStatusService.IsOnline)
-{
-    @ChildContent
-}
-else if (!toastShown)
+@if (!NetworkStatusService.IsOnline)
 {
     <div class="text-center p-3 text-warning">You're offline</div>
+}
+else
+{
+    @ChildContent
 }
 
 @code {

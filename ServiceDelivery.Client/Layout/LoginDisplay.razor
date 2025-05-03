@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
+@using System.Text.Json
 @implements IDisposable
 
 @inject AuthenticationStateProvider AuthProvider
@@ -42,17 +43,37 @@ else
     {
         var state = await task;
         SetAuthStateFromUser(state.User);
-
-        Console.WriteLine($"[Auth] State changed: {isAuthenticated}, {user.Identity?.Name}");
+#if DEBUG
+Console.WriteLine($"[Auth] State changed: {isAuthenticated}, {user.Identity?.Name}");
+#endif
         StateHasChanged();
     }
 
     private async Task UpdateAuthState()
     {
-        var authState = await AuthProvider.GetAuthenticationStateAsync();
-        SetAuthStateFromUser(authState.User);
+        var json = await JS.InvokeAsync<string>("sessionStorage.getItem", "oidc.user:https://localhost:44313/:sdc-v1");
+        if (!string.IsNullOrWhiteSpace(json))
+        {
+            // Update UI
+            // Trigger authentication state change
+            var parsed = JsonDocument.Parse(json);
+            var idToken = parsed.RootElement.GetProperty("id_token").GetString();
+#if DEBUG
+Console.WriteLine("idToken: ", idToken);
+#endif
+            var cachedUser = IdentityBuilder.BuildIdentityFromIdToken(idToken, "cached");
+            SetAuthStateFromUser(new ClaimsPrincipal(cachedUser));
+        }
+        else
+        {
+            @* var authState = await AuthProvider.GetAuthenticationStateAsync();
+            SetAuthStateFromUser(authState.User); *@
+        }
 
-        Console.WriteLine($"[Auth] IsAuthenticated: {isAuthenticated}, User: {user.Identity?.Name}");
+#if DEBUG
+Console.WriteLine($"[Auth] IsAuthenticated: {isAuthenticated}, User: {user?.Identity?.Name}");
+#endif
+
         isLoading = false;
         StateHasChanged();
     }
