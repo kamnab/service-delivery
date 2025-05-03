@@ -3,3 +3,4 @@ ServiceDelivery.Client/Requirement2.txt
 ServiceDelivery.Client/Requirement.txt
 # Local Netlify folder
 .netlify
+ServiceDelivery.Client/scripts/certs

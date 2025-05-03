@@ -1,40 +1,49 @@
-# Step 1: Build the Blazor WebAssembly PWA
+# --------- Stage 1: Build Blazor WebAssembly PWA ---------
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
-# Set working directory
 WORKDIR /src
 
-# Copy the project file and restore dependencies
-COPY ["ServiceDelivery.Client.csproj", "/src"]
+# Copy project file and restore dependencies
+COPY ["ServiceDelivery.Client.csproj", "./"]
 RUN dotnet restore "ServiceDelivery.Client.csproj"
 
-# Copy the rest of the files and publish the app
+# Copy the rest of the source
 COPY . .
-WORKDIR "/src"
 
-# Install required dependencies (wasm-tools and python)
+# Install Python (needed for wasm-tools)
 RUN apt-get update && apt-get install -y python3 && \
     ln -s /usr/bin/python3 /usr/bin/python
 
-# Install the necessary workload for AOT/WebAssembly
+# Install WebAssembly workload with AOT
 RUN dotnet workload install wasm-tools-net8
 
-# Publish with AOT, trimming, and Brotli compression enabled
-RUN dotnet publish "ServiceDelivery.Client.csproj" -c Release -o /app/publish
+# Publish with AOT, trimming, and Brotli compression
+RUN dotnet publish "ServiceDelivery.Client.csproj" \
+    -c Release \
+    -o /app/publish
 
-# Stage 2: Serve the Blazor WASM app using nginx
+
+# --------- # Stage 2: Serve with NGINX
 FROM nginx:alpine AS final
-# Copy the published files from the build step
+
+# Set working directory
+WORKDIR /app
+
+# Copy published app from build stage
 COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
-# Copy your self-signed certs and config into the image
-COPY ./nginx/certs /etc/nginx/certs/
+
+# Copy custom Nginx config
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
-ARG Environment
-RUN sed -i "s/replaceme/${Environment}/" /etc/nginx/nginx.conf 
+# Copy SSL certs
+# COPY ./scripts/certs/oer.local.pem /etc/nginx/certs/oer.local.pem
+# COPY ./scripts/certs/oer.local-key.pem /etc/nginx/certs/oer.local-key.pem
 
-# Expose port
+# Restrict permissions on certs
+# RUN chmod 600 /etc/nginx/certs/*
+
+# Expose web ports
 EXPOSE 80 443
 
-# Start Nginx to serve static files
+# Start dbus, avahi-daemon, and nginx
 CMD ["nginx", "-g", "daemon off;"]

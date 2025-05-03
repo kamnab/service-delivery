@@ -10,10 +10,62 @@ On older versions, use one of the following forms:
 --- 
 - sudo kill 38557 (PID)
 ---
-docker build -t my-blazor-pwa . --build-arg Environment=Development
-docker run -d -p 5082:80 -p 5083:443 --name my-blazor-pwa-container my-blazor-pwa
+docker build -t oer-local . 
+docker build -t oer-local . --build-arg Environment=Development
+docker run -d -p 880:80 -p 8443:443 -v ./scripts/certs:/etc/nginx/certs:ro --name oer-local-service oer-local
 
-
+--- SSL
+https://imagineer.in/blog/https-on-localhost-with-nginx/#:~:text=Prerequisites:,Email%20Address
+STEP 1: Generate Self-signed SSL Certificate
+- openssl req -x509 -sha256 -nodes -newkey rsa:2048 -days 365 -keyout localhost.key -out localhost.crt
+STEP 2: Trust authority of the certificate
+- sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /path/to/file/localhost.crt
+STEP 3: Configure & Reload nginx
+--
+events {}
+http {
+    upstream backend {
+        server 127.0.0.1:8000;
+    }
+    server {
+        server_name local.website.dev;
+        rewrite ^(.*) https://local.website.dev$1 permanent;
+    }
+    server {
+        listen               443;
+        ssl                  on;
+        ssl_certificate      /path/to/file/localhost.crt;
+        ssl_certificate_key  /path/to/file/localhost.key;
+        ssl_ciphers          HIGH:!aNULL:!MD5;
+        server_name          local.website.dev;
+        location / {
+            proxy_pass  http://backend;
+        }
+    }
+}
+--
+events {}
+http {
+    upstream backend {
+        server 127.0.0.1:8000;
+    }
+    server {
+        server_name localhost;
+        rewrite ^(.*) https://localhost$1 permanent;
+    }
+    server {
+        listen               443;
+        ssl                  on;
+        ssl_certificate      /path/to/file/localhost.crt;
+        ssl_certificate_key  /path/to/file/localhost.key;
+        ssl_ciphers          HIGH:!aNULL:!MD5;
+        server_name          localhost;
+        location / {
+            proxy_pass  http://backend;
+        }
+    }
+}
+---
 
 I want a base Dockerfile template that auto-generates the cert uses Nginx
 
