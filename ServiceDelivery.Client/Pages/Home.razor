@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using System.Text.Json
+
 <PageTitle>Home</PageTitle>
 
 <!--begin::Content-->
@@ -212,56 +214,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="table-responsive">
-                            <table class="table table-striped text-nowrap">
-                                <thead>
-                                    <tr class="fs-6 text-gray-800 border-bottom-2 border-gray-200">
-                                        <th>ល.រ</th>
-                                        <th class="" style="font-weight: 600;">រាជធានី ខេត្ត</th>
-                                        <th class="" style="font-weight: 600;">អង្គភាព</th>
-                                        <th class="" style="font-weight: 600;">ប្រភេទសាលា</th>
-                                        <th class="min-w-100px" style="font-weight: 600;">ព្រឹត្តិបត្រព័ត៌មាន</th>
-                                        <th class="min-w-100px" style="font-weight: 600;">របាយការណ៍អធិការកិច្ច</th>
-                                        <th class="min-w-100px" style="font-weight: 600;">ស្វ័យវាយតម្លៃ</th>
-                                        <th class="min-w-100px" style="font-weight: 600;">ពិន្ទុ</th>
-                                        <th class="min-w-100px" style="font-weight: 600;">ក្រុមការងារវាយតម្លៃ</th>
-                                        <th class="min-w-100px" style="font-weight: 600;">ពិន្ទុ</th>
-                                        <th class="min-w-50px" style="font-weight: 600;">
-                                            ជាប់ស្ដង់ដាសាលាមធ្យមសិក្សាគំរូ ឆ្នាំ2024
-                                        </th>
-                                        <th class="min-w-100px" style="font-weight: 600;">សាលាប្រើប្រាស់ MIS</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(item, index) in filteredData" :key="item.id">
-                                        <td>{{ item.id }}</td>
-                                        <td>{{ item.province }}</td>
-                                        <td>{{ item.schoolName }}</td>
-                                        <td><span v-for="(t, i) in item.type" style="">{{ t.replace(i > 0 ? SRS :
-                                                '-', '-')
-                                                }}</span>
-                                        </td>
-                                        <td><a v-if="item.profileLink != ''" :href="item.profileLink"
-                                                target="_blank">ទាញយកទីនេះ</a>
-                                        </td>
-                                        <td><a v-if="item.inspectionReportLink != ''" :href="item.inspectionReportLink"
-                                                target="_blank">ទាញយកទីនេះ</a>
-                                        </td>
-                                        <td><a v-if="item.selfEvalLink != ''" :href="item.selfEvalLink"
-                                                target="_blank">ទាញយកទីនេះ</a></td>
-                                        <td>{{ item.selfEvalScore }}</td>
-                                        <td><a v-if="item.workingGroupEvalLink != ''" :href="item.workingGroupEvalLink"
-                                                target="_blank">ទាញយកទីនេះ</a>
-                                        </td>
-                                        <td>{{ item.workingGroupEvalScore }}</td>
-                                        <td>
-                                            <!-- {{ item.modelSchoolStandardStatus ? 'ជាប់' : 'មិនជាប់' }} -->
-                                        </td>
-                                        <td>{{ item.useSchoolMgmtSystem }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+
 
                     </div>
                 </div>
@@ -276,9 +229,503 @@
         </div>
         <!--end::Row-->
 
+        <!--begin::Row-->
+        <div class="row g-0 g-xl-5 g-xxl-8 myPage">
 
+            <div class="col-xl-12">
+                <!--begin::Table Widget 1-->
+                <div class="card card-stretch mb-5 mb-xxl-8">
+                    <!--begin::Header-->
+                    <div class="card-header border-0">
+                        <h3 class="card-title align-items-center flex-row">
+                            <img src="/assets/media/multimedia.png" class="h-30px me-3" />
+                            <span class="card-label fw-bolder text-dark fs-2">Multimedia</span>
+                            <span class="text-muted mt-2 fw-bold fs-6">
+
+                            </span>
+                        </h3>
+                        <div class="card-toolbar">
+                            @* <ul class="nav nav-pills nav-pills-sm nav-light">
+                    <li class="nav-item">
+                    <a class="nav-link btn btn-primary-light py-2 px-4 active fw-bolder me-2"
+                    asp-action="Upload"
+                    asp-controller="FileUpload"
+                    asp-area="Talkemie.FileService.WebApp">Add New</a>
+                    </li>
+                    </ul> *@
+                        </div>
+                    </div>
+                    <!--end::Header-->
+                    <!--begin::Body-->
+                    <div class="card-body pt-2 mt-n3">
+                        <div class="mt-5 section_our_solution" id="myTabTables1">
+                            <div class="row g-7">
+                                @foreach (var item in uploadedFiles)
+                                {
+                                    var fileUrl = string.IsNullOrWhiteSpace(item.Slug) ?
+                                    $"{host}/file/{item.Id}/preview" :
+                                    $"{host}/file/{item.Slug}";
+
+                                    var downloadUrl = $"{host}/file/{item.Id}/download";
+
+                                    <div class="col-xl-3 col-md-4 col-sm-6">
+                                        <div class="our_solution_category">
+                                            <div class="solution_cards_box">
+
+                                                <div class="solution_card">
+                                                    @if (new List<string>() { ".mp3", ".opus", ".ogg" }.Any(x =>
+                                                                                                    item.FileName.Contains(x)))
+                                                    {
+                                                        <div class="w-100 bg-light d-flex flex-column flex-center"
+                                                            style="height:150px;">
+                                                            <audio controls class="w-100">
+                                                                <source src="@fileUrl" type="audio/mpeg" />
+                                                                <source src="@fileUrl" type="audio/ogg" />
+                                                                <source src="@fileUrl" type="audio/wav" />
+                                                                Audio not supported
+                                                            </audio>
+                                                        </div>
+                                                    }
+                                                    else if (new List<string>() { ".mp4" }.Any(x =>
+                                                    item.FileName.Contains(x)))
+                                                    {
+                                                        <video controls class="w-100" src="@fileUrl" style="height:150px;">
+                                                            Video not supported
+                                                        </video>
+                                                    }
+                                                    else if (new List<string>() { ".jpg", ".jpeg", ".png" }.Any(x =>
+                                                    item.FileName.Contains(x)))
+                                                    {
+                                                        <img src="@fileUrl" class="w-100 shadow-1-strong bg-light"
+                                                            style="height: 150px; overflow: hidden; object-fit:cover;"
+                                                            alt="@item.Description" data-bs-toggle="modal"
+                                                            data-bs-target="#myModal" data-my-modal-title="Preview"
+                                                            data-my-modal-no-footer data-id="@item.Id"
+                                                            data-my-action="<img src=@fileUrl style='max-width: 100%; object-fit:cover; display: block; margin: 0 auto;' />" />
+                                                    }
+                                                    else if (new List<string>() { ".gif" }.Any(x =>
+                                                    item.FileName.Contains(x)))
+                                                    {
+                                                        <div class="w-100 bg-light d-flex flex-column flex-center"
+                                                            style="position: relative;">
+                                                            <canvas data-my-gif-url="@fileUrl"
+                                                                class="w-100 shadow-1-strong bg-light"
+                                                                style="height: 150px; overflow: hidden; object-fit:cover; border:0.1px solid black;"
+                                                                data-bs-toggle="modal" data-bs-target="#myModal"
+                                                                data-my-modal-title="Preview" data-my-modal-no-footer
+                                                                data-id="@item.Id"
+                                                                data-my-action="<img src=@fileUrl style='max-width: 100%; object-fit:cover; display: block; margin: 0 auto;' />">
+                                                            </canvas>
+                                                            <span
+                                                                style="position: absolute; top: 0.5px; left:0.5px; border-bottom-right-radius: 16px; border-top-left-radius: 10px;"
+                                                                class="bg-accent px-3">gif</span>
+                                                        </div>
+
+                                                    }
+                                                    else if (new List<string>() { ".pdf" }.Any(x =>
+                                                    item.FileName.Contains(x)))
+                                                    {
+                                                        <div class="w-100 bg-light d-flex flex-column flex-center"
+                                                            style="height:150px;" data-bs-toggle="modal"
+                                                            data-bs-target="#myModal" data-id="@item.Id"
+                                                            data-my-modal-title="Preview" data-my-modal-no-footer
+                                                            data-my-action="<a class='btn btn-primary btn-sm' href=@fileUrl>Open New Window</a>">
+                                                            <h3>pdf</h3>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="w-100 bg-light d-flex flex-column flex-center"
+                                                            style="height:150px;" data-bs-toggle="modal"
+                                                            data-bs-target="#myModal" data-my-modal-title="Preview"
+                                                            data-my-modal-no-footer data-id="@item.Id"
+                                                            data-my-action="<p class='fs-4 text-danger'>Unable to preview @item.ContentType file type.<p/>">
+                                                            <h3>@item.ContentType</h3>
+                                                        </div>
+                                                    }
+
+                                                    <div class="hover_color_bubble"></div>
+
+                                                    <div class="solu_title mt-2 px-3 d-flex justify-content-between">
+                                                        <span>
+                                                            @item.FileSize
+                                                        </span>
+                                                        @* <h3>Demo 1</h3> *@
+                                                        <div>
+                                                            <a href="#" data-href="@fileUrl" class="mx-2 liveToastBtn">
+                                                                <i class="bi bi-clipboard fs-3"></i>
+
+                                                            </a>
+                                                            <a href="@downloadUrl">
+                                                                <i class="bi bi-download fs-3"></i>
+                                                            </a>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="solu_description px-3">
+                                                        <p id="@item.Id">
+                                                            @item.Description
+                                                        </p>
+                                                        @* <button type="button" class="read_more_btn">Read More</button> *@
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                }
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+                <!--end::Table Widget 1-->
+            </div>
+        </div>
+
+        <!--begin::Toast-->
+        <div id="liveToast" class="toast bg-white position-fixed bottom-0 end-0 p-3" style="z-index: 11" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            @* <div class="toast-header">
+    <i class="ki-duotone ki-abstract-39 fs-2 text-primary me-3"><span class="path1"></span><span
+    class="path2"></span></i>
+    <strong class="me-auto">Keenthemes</strong>
+    <small>11 mins ago</small>
+    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div> *@
+            <div class="toast-body" id="toast-msg">
+            </div>
+        </div>
+        <!--end::Toast-->
 
     </div>
     <!--end::Container-->
+
+    <!--begin::Modals-->
+    <!--begin::Modal - myModal-->
+    <div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable mw-750px">
+            <div class="modal-content">
+                <!--begin::modal-header-->
+                <div class="modal-header d-flex justify-content-between">
+                    <!--begin::Modal title-->
+                    <h2 class="modal-title">File Upload</h2>
+                    <!--end::Modal title-->
+                    <!--begin::Close-->
+                    <div class="btn btn-icon btn-sm btn-light" data-bs-dismiss="modal">
+                        <!--begin::Svg Icon | path: icons/duotone/Navigation/Close.svg-->
+                        <span class="svg-icon svg-icon-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                <g transform="translate(12.000000, 12.000000) rotate(-45.000000) translate(-12.000000, -12.000000) translate(4.000000, 4.000000)"
+                                    fill="#000000">
+                                    <rect fill="#000000" x="0" y="7" width="16" height="2" rx="1"></rect>
+                                    <rect fill="#000000" opacity="0.5"
+                                        transform="translate(8.000000, 8.000000) rotate(-270.000000) translate(-8.000000, -8.000000)"
+                                        x="0" y="7" width="16" height="2" rx="1"></rect>
+                                </g>
+                            </svg>
+                        </span>
+                        <!--end::Svg Icon-->
+                    </div>
+                    <!--end::Close-->
+                </div>
+                <!--end::modal-header-->
+                <!--begin::modal-body-->
+                <div class="modal-body">
+                    <!--begin::Content-->
+                    <div class="d-flex flex-row-fluid justify-content-center">
+
+                        <!--begin::Form-->
+                        <form class="pb-5 w-100 " novalidate="novalidate" id="myModalForm">
+                            <div class="w-100">
+
+                                <!--end::Form Group-->
+                                <div class="mb-6">
+                                    <label for="exampleFormControlTextarea1" class="fs-6 form-label">PDF
+                                        Link</label>
+                                    <div class="d-flex flex-row w-100 me-3">
+                                        <div class="d-flex flex-stack">
+                                            <a href="#"
+                                                class="btn btn-icon btn-bg-light btn-active-light-primary btn-sm">
+                                                <!--begin::Svg Icon | path: icons/duotone/Navigation/Arrow-right.svg-->
+                                                <span class="svg-icon svg-icon-4">
+
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                        fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z" />
+                                                        <path
+                                                            d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z" />
+                                                    </svg>
+                                                </span>
+                                                <!--end::Svg Icon-->
+                                            </a>
+                                        </div>
+                                        <div class="d-flex align-items-center ms-2">
+                                            <span class="text-dark fs-6 fw-bolder">Progress</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!--end::Form Group-->
+                                <div class="mb-6">
+                                    <label for="exampleFormControlTextarea1" class="fs-6 form-label">Description</label>
+                                    <textarea class="form-control form-control-solid" name="description"
+                                        id="exampleFormControlTextarea1" rows="3"></textarea>
+                                </div>
+                            </div>
+
+
+
+                        </form>
+                        <!--end::Form-->
+                    </div>
+                    <!--end::Content-->
+
+                </div>
+                <!--end::modal-body-->
+                <!--begin::modal-footer-->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+                <!--end::modal-footer-->
+
+            </div>
+        </div>
+    </div>
+    <!--end::Modal - myModal-->
+    <!--end::Modals-->
 </div>
 <!--end::Content-->
+
+@code {
+    @inject IJSRuntime JS
+
+    string host = "https://api.codemie.dev";
+    List<FileUploadDTO> uploadedFiles = new();
+    private bool hasRenderedFiles = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        var publicFiles = await GetPublicUploadFiles();
+        uploadedFiles = publicFiles.UploadedFiles;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Wait until canvas is rendered and hasn't been initialized yet
+        if (uploadedFiles.Count > 0 && !hasRenderedFiles)
+        {
+            hasRenderedFiles = true;
+            await JS.InvokeVoidAsync("loadViewComponentScript");
+            await JS.InvokeVoidAsync("initializeCanvasAnimations");
+        }
+    }
+
+    async Task<FileUploadListDTO> GetPublicUploadFiles()
+    {
+        using var client = new HttpClient();
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"{host}/v1/public/files");
+        //request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        //var data = JsonSerializer.Serialize(request);
+        //var stringContent = new StringContent(data, Encoding.UTF8);
+
+        //request.Content = stringContent;
+        //request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var responseItems = JsonSerializer.Deserialize<FileUploadListDTO>(content, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        return responseItems;
+    }
+
+    public class FileUploadListDTO : DTOResponse
+    {
+        public List<FileUploadDTO> UploadedFiles { get; set; }
+    }
+
+    public class FileUploadDTO
+    {
+        public Guid Id { get; set; }
+        public string? Slug { get; set; }
+        public string FileName { get; set; }
+        public string? FileNameForDownload { get; set; }
+        public bool IsPublicAccess { get; set; }
+        public string FileSize { get; set; }
+        public string? ContentType { get; set; }
+        public string? Description { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public string? CreatedBy { get; set; }
+    }
+
+    public class DTOResponse
+    {
+        public bool Success { get; set; }
+        public List<string> Errors { get; set; }
+    }
+}
+
+<style>
+    .section_our_solution .row {
+        align-items: center;
+    }
+
+    .our_solution_category {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .our_solution_category .solution_cards_box {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .solution_cards_box .solution_card {
+        flex: 0 50%;
+        background: #fff;
+        /* box-shadow: 0 2px 4px 0 rgba(136, 144, 195, 0.2), 0 5px 15px 0 rgba(37, 44, 97, 0.15); */
+        border-radius: 15px;
+        /* margin: 8px; */
+        /* padding: 10px 15px; */
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+        min-height: 255px;
+        transition: 0.7s;
+    }
+
+    .solution_cards_box .solution_card:hover {
+        background-color: #4877B6;
+        @*color:#fff;*@
+        box-shadow: 0 2px 4px 0 rgba(136, 144, 195, 0.2), 0 5px 15px 0 rgba(37, 44, 97, 0.15);
+        transform: scale(1.01);
+        z-index: 9;
+    }
+
+    .solution_cards_box .solution_card:hover::before {
+        background: rgb(85 108 214 / 10%);
+    }
+
+    .solution_cards_box .solution_card:hover .solu_title {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .solution_cards_box .solution_card:hover .solu_title a,
+    .solution_cards_box .solution_card:hover .solu_title i,
+    .solution_cards_box .solution_card:hover .solu_description p {
+        color: #fff;
+    }
+
+    .solution_cards_box .solution_card:before {
+        content: "";
+        position: absolute;
+        background: rgb(85 108 214 / 5%);
+        width: 170px;
+        height: 400px;
+        z-index: -1;
+        transform: rotate(42deg);
+        right: -56px;
+        top: -23px;
+        border-radius: 35px;
+    }
+
+    .solution_cards_box .solution_card:hover .solu_description button {
+        background: #fff !important;
+        color: #309df0;
+    }
+
+    .solution_card .so_top_icon {}
+
+    .solution_card .solu_title,
+    .solution_card .solu_title h3 {
+        color: rgba(0, 0, 0, 0.5);
+        /* font-size: 1.3rem; */
+        /* margin-top: 13px;
+                                margin-bottom: 13px; */
+    }
+
+    .solution_card .solu_description p {
+        font-size: 1rem;
+        margin-bottom: 15px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .solution_card .solu_description button {
+        border: 0;
+        border-radius: 15px;
+        background: linear-gradient(140deg, #42c3ca 0%, #42c3ca 50%, #42c3cac7 75%) !important;
+        color: #fff;
+        font-weight: 500;
+        font-size: 1rem;
+        padding: 5px 16px;
+    }
+
+    .our_solution_content h1 {
+        text-transform: capitalize;
+        margin-bottom: 1rem;
+        font-size: 2.5rem;
+    }
+
+    .our_solution_content p {}
+
+    .hover_color_bubble {
+        position: absolute;
+        background: rgb(54 81 207 / 15%);
+        width: 100rem;
+        height: 100rem;
+        left: 0;
+        right: 0;
+        z-index: -1;
+        top: 16rem;
+        border-radius: 50%;
+        transform: rotate(-36deg);
+        left: -18rem;
+        transition: 0.7s;
+    }
+
+    .solution_cards_box .solution_card:hover .hover_color_bubble {
+        top: 0rem;
+    }
+
+    .solution_cards_box .solution_card .so_top_icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #fff;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .solution_cards_box .solution_card .so_top_icon img {
+        width: 40px;
+        height: 50px;
+        object-fit: contain;
+    }
+</style>
