@@ -1,6 +1,6 @@
 self.importScripts('./service-worker-assets.js');
 
-const CACHE_NAME = 'sdc-cache-v1.101';
+const CACHE_NAME = 'sdc-cache-v1.107';
 const OFFLINE_FALLBACK_PAGE = 'offline.html';
 const SPA_FALLBACK_PAGE = 'index.html';
 const OFFLINE_URLS = [OFFLINE_FALLBACK_PAGE, SPA_FALLBACK_PAGE];
@@ -42,6 +42,18 @@ self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
 
     const { request } = event;
+
+    // 🔒 Bypass all sensitive auth and discovery URLs
+    if (
+        request.url.includes('/authentication/') ||
+        request.url.includes('/.well-known/') || // OpenID configuration
+        request.url.includes('/connect/authorize') ||
+        request.url.includes('/connect/token') ||
+        request.url.includes('/connect/logout')
+    ) {
+        console.log('[SW] Bypassing sensitive request:', request.url);
+        return; // Let the browser handle it
+    }
 
     // Handle API requests with stale-while-revalidate strategy
     if (request.url.includes('/api/') && request.method === 'GET') {

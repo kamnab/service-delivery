@@ -14,7 +14,7 @@
 }
 else if (isAuthenticated)
 {
-    <a href="authentication/profile">Hello, @user?.Identity?.Name!</a>
+    <a href="authentication/profile">Hello, @displayName!</a>
     <button class="nav-link btn btn-link" @onclick="BeginSignOut">Log out</button>
 }
 else
@@ -25,8 +25,8 @@ else
 @code {
     private bool isAuthenticated;
     private bool isLoading = true;
+    private string? displayName;
     private ClaimsPrincipal user;
-
     protected override async Task OnInitializedAsync()
     {
         AuthProvider.AuthenticationStateChanged += OnAuthStateChanged;
@@ -37,6 +37,10 @@ else
     {
         user = principal;
         isAuthenticated = user.Identity?.IsAuthenticated == true;
+        displayName =
+        user?.FindFirst("display_name")?.Value ??
+        user?.Identity?.Name ??
+        "Guest";
     }
 
     private async void OnAuthStateChanged(Task<AuthenticationState> task)
