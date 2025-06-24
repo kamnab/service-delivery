@@ -186,13 +186,9 @@ Would you like a database implementation example with SQL Server or MongoDB?
 
 # Implement Group Management Functionality
 1. Group Membership Management: Track users and their group memberships.
-
 2. Adding Users to Groups: Add users to specific groups dynamically.
-
 3. Removing Users from Groups: Remove users from groups when necessary.
-
 4. Listing Group Members: Optionally, retrieve a list of users in a group.
-
 5. Sending Messages to Groups: Allow sending notifications or messages to a specific group.
 
 # Add Openiddict validation

@@ -1,4 +1,7 @@
+using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Validation.AspNetCore;
 using ServiceDelivery.Api;
@@ -10,12 +13,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Set the URL to use localhost on specific ports
 builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:5001");
 
+var connectionString = builder.Configuration.GetConnectionString(EFSettings.DB_CONNECTION_NAME) ?? throw new InvalidOperationException($"Connection string '{EFSettings.DB_CONNECTION_NAME}' not found.");
+
+builder.Services.AddDbContext<HubDbContext>(options =>
+{
+    // Configure the context to use sqlite.
+    //options.UseSqlite($"Filename={Path.Combine(Path.GetTempPath(), "openiddict-velusia-server2.sqlite3")}");
+    options.UseSqlServer(connectionString, x =>
+    {
+        x.MigrationsHistoryTable(EFSettings.DB_EFMigrationsHistory, EFSettings.DB_SCHEME);
+        x.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+    });
+});
+
 // Add OpenAPI and Swagger UI support
 builder.Services.AddEndpointsApiExplorer(); // Needed for minimal APIs
 builder.Services.AddSwaggerGen(); // Adds full Swagger UI support
 
 builder.Services.AddSignalR(options =>
 {
+    options.AddFilter<MachineValidationFilter>();
+
     options.KeepAliveInterval = TimeSpan.FromSeconds(15); // How often server pings the client
     options.ClientTimeoutInterval = TimeSpan.FromSeconds(30); // If no message is received in this time, disconnect
 });
@@ -117,6 +135,97 @@ app.MapPost("/api/v1/connections/close/{connectionId}", async (string connection
     return Results.Ok(new { Message = $"{connectionId} is disconnecting." });
 });
 
+app.MapPost("/api/v1/conns/request/{connectionId}", async (string connectionId, string pluginName, IHubContext<NotificationsHub, INotificationClient> hubContext) =>
+{
+    // Invoke the ReceiveRequest method in the hub
+    await hubContext.Clients.Client(connectionId).ReceiveRequest(pluginName);
+
+    return Results.Ok(new { Message = $"Sending cmd:ReceiveRequest to client with connection: {connectionId}" });
+});
+
+app.MapPost("/deliver/apps/{fileName}", async (HttpContext context, IHubContext<NotificationsHub, INotificationClient> hubContext, string connectionId, [FromRoute] string fileName, string destPath = "") =>
+{
+    var path = Path.Combine("Infrastructure/SharedFiles/Default/Apps", fileName);
+    if (!File.Exists(path))
+    {
+        context.Response.StatusCode = 404;
+        return;
+    }
+
+    var boardingFile = new FileDescriptor
+    {
+        FileName = fileName,
+        LastModified = File.GetLastWriteTimeUtc(path)
+    };
+
+    await hubContext.Clients.Client(connectionId).ReceiveAppsManifest([boardingFile], destPath);
+});
+
+
+app.MapPost("/deliver/plugins/{fileName}", async (HttpContext context, IHubContext<NotificationsHub, INotificationClient> hubContext, string connectionId, [FromRoute] string fileName, string destPath = "") =>
+{
+    var path = Path.Combine("Infrastructure/SharedFiles/Default/Plugins", fileName);
+    if (!File.Exists(path))
+    {
+        context.Response.StatusCode = 404;
+        return;
+    }
+
+    var boardingFile = new FileDescriptor
+    {
+        FileName = fileName,
+        LastModified = File.GetLastWriteTimeUtc(path)
+    };
+
+    await hubContext.Clients.Client(connectionId).ReceivePluginsManifest([boardingFile], destPath);
+});
+
+app.MapPost("/deliver/file/{fileName}", async (HttpContext context, IHubContext<NotificationsHub, INotificationClient> hubContext,
+    string connectionId,
+    [FromRoute] string fileName,
+    string destPath /* start from root path => ./ */) =>
+{
+    var path = Path.Combine("Infrastructure/SharedFiles/Default/File", fileName);
+    if (!File.Exists(path))
+    {
+        context.Response.StatusCode = 404;
+        return;
+    }
+
+    var boardingFile = new FileDescriptor
+    {
+        FileName = fileName,
+        LastModified = File.GetLastWriteTimeUtc(path)
+    };
+
+    await hubContext.Clients.Client(connectionId).ReceiveFileManifest([boardingFile], destPath);
+});
+
+app.MapGet("/download/{machineId}/{folder}/{fileName}", async (
+    [FromRoute] string machineId,
+    [FromRoute] string folder,
+    [FromRoute] string fileName,
+    HttpContext context,
+    IHubContext<NotificationsHub, INotificationClient> hubContext,
+    IConnectionManager manager) =>
+{
+    if (!await manager.IsAuthorizedMachine(machineId))
+    {
+        context.Response.StatusCode = 401;
+        return;
+    }
+
+    var path = Path.Combine("Infrastructure/SharedFiles/Default", folder, fileName);
+    if (!File.Exists(path))
+    {
+        context.Response.StatusCode = 404;
+        return;
+    }
+
+    context.Response.ContentType = "application/octet-stream";
+    context.Response.Headers.ContentDisposition = $"attachment; filename={fileName}";
+    await context.Response.SendFileAsync(path);
+});
 #endregion
 
 app.Run();
