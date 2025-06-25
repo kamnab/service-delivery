@@ -78,7 +78,6 @@ jobs:
               --name odi-profile-service \
               --restart unless-stopped \
               --env-file ~/profile-service.env \
-              -p 5501:5501 -p 5502:5502 \
               odi-profile-service:prod
 
           EOF
