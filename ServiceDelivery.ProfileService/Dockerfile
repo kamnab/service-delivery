@@ -22,3 +22,13 @@ EXPOSE 443 80
 
 # Run app
 ENTRYPOINT ["/entrypoint.sh"]
+
+
+# docker run --rm --env-file .env odi-profile-service:dev env | grep ASPNETCORE
+# docker run --rm \
+#     --name odi-profile-service \
+#     --env-file .env \
+#     -p 5501:5501 \
+#     -p 5502:5502 \
+#     -v $(pwd)/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx \
+#     odi-profile-service:prod
