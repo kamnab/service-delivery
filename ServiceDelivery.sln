@@ -7,6 +7,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceDelivery.Api", "Serv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceDelivery.Client", "ServiceDelivery.Client\ServiceDelivery.Client.csproj", "{9ED840B9-2E48-4A3B-A4BD-D21C8E8F0940}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceDelivery.ProfileService", "ServiceDelivery.ProfileService\ServiceDelivery.ProfileService.csproj", "{F7B4BB89-C65A-439F-AE37-EE6EFFAE2A01}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{9C6578E7-E4FE-79BB-1635-F363CC1E80DD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{E7A3C856-6834-D657-F2F0-05592DF2DDE9}"
+	ProjectSection(SolutionItems) = preProject
+		ServiceDelivery.ProfileService.yml = ServiceDelivery.ProfileService.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,8 +30,15 @@ Global
 		{9ED840B9-2E48-4A3B-A4BD-D21C8E8F0940}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9ED840B9-2E48-4A3B-A4BD-D21C8E8F0940}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9ED840B9-2E48-4A3B-A4BD-D21C8E8F0940}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7B4BB89-C65A-439F-AE37-EE6EFFAE2A01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7B4BB89-C65A-439F-AE37-EE6EFFAE2A01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7B4BB89-C65A-439F-AE37-EE6EFFAE2A01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7B4BB89-C65A-439F-AE37-EE6EFFAE2A01}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E7A3C856-6834-D657-F2F0-05592DF2DDE9} = {9C6578E7-E4FE-79BB-1635-F363CC1E80DD}
 	EndGlobalSection
 EndGlobal

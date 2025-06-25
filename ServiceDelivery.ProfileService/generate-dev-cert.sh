@@ -3,7 +3,7 @@
 
 mkdir -p Infrastructure/Resources/https
 
-mkcert -pkcs12 -p12-file Infrastructure/Resources/https/profile-service.pfx 127.0.0.1 192.168.185.20 ::1
+mkcert -pkcs12 -p12-file Infrastructure/Resources/https/profile-service.pfx localhost 100.42.176.103 127.0.0.1 ::1
 
 echo "✅ Trusted HTTPS cert generated at Infrastructure/Resources/https/profile-service.pfx"
 
@@ -18,4 +18,5 @@ echo "✅ Trusted HTTPS cert generated at Infrastructure/Resources/https/profile
 # If it asks for a password, it's not passwordless.
 # If it shows info directly or succeeds with an empty password, it's fine.
 # openssl pkcs12 -in Infrastructure/Resources/https/profile-service.pfx -info
+# openssl pkcs12 -in profile-service.pfx -info
 # ------ 

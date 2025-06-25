@@ -24,12 +24,12 @@ jobs:
   
       - name: SCP Docker image to remote server
         run: |
-            docker save odi-profile-service | bzip2 | ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'bunzip2 | docker load'
+            docker save odi-profile-service:prod | bzip2 | ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'bunzip2 | docker load'
       
       - name: Transfer .env and cert to remote
         run: |
           scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/.env ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.env
-          scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/profile-service.pfx ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.pfx
+          scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/Infrastructure/Resources/https/profile-service.pfx ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.pfx
 
       - name: Check and Install Docker if not present
         run: |
@@ -76,6 +76,7 @@ jobs:
             # Run the new container
             docker run -d \
               --name odi-profile-service \
+              --restart unless-stopped \
               --env-file ~/profile-service.env \
               -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx \
               -p 5501:5501 -p 5502:5502 \
