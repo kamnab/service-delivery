@@ -9,4 +9,7 @@ Activation.Client/obj
 Activation.Client/bin
 Activation.Server/bin
 Activation.Server/obj
+ServiceDelivery.ProfileService/bin
 ServiceDelivery.ProfileService/obj
+ServiceDelivery.Api/bin
+ServiceDelivery.Api/obj

@@ -10,10 +10,12 @@ using System.Threading.Tasks;
 public class TokenRefreshService : ITokenRefreshService
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConfiguration _configuration;
 
-    public TokenRefreshService(IHttpClientFactory httpClientFactory)
+    public TokenRefreshService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
+        _configuration = configuration;
     }
 
     public async Task<string> TryRefreshAccessTokenAsync(HttpContext context)
@@ -22,7 +24,7 @@ public class TokenRefreshService : ITokenRefreshService
         if (string.IsNullOrWhiteSpace(refreshToken))
             return null;
 
-        var disco = await _httpClientFactory.CreateClient().GetDiscoveryDocumentAsync("https://localhost:44313");
+        var disco = await _httpClientFactory.CreateClient().GetDiscoveryDocumentAsync(_configuration["Auth:Issuer"]);
         if (disco.IsError)
             return null;
 
