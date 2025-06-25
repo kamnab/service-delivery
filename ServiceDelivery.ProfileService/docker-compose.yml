@@ -1,0 +1,22 @@
+# docker compose up --build
+# env | grep ASPNETCORE
+
+services:
+  odi-profile-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: odi-profile-service:dev
+    container_name: odi-profile-service-dev
+    ports:
+      - "5501:5501"  # HTTPS
+      - "5502:5502"   # Optional HTTP
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_HTTP_PORTS=5502
+      - ASPNETCORE_HTTPS_PORTS=5501
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=${ASPNETCORE_Kestrel__Certificates__Default__Path}
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${ASPNETCORE_Kestrel__Certificates__Default__Password}
+    volumes:
+      - ./Infrastructure/Resources:/app/Infrastructure/Resources
+

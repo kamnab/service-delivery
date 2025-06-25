@@ -4,3 +4,8 @@ ServiceDelivery.Client/Requirement.txt
 # Local Netlify folder
 .netlify
 ServiceDelivery.Client/scripts/certs
+ServiceDelivery.Api/Infrastructure/SharedFiles
+Activation.Client/obj
+Activation.Client/bin
+Activation.Server/bin
+Activation.Server/obj

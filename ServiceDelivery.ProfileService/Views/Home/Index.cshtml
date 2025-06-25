@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div id="loading-screen">
+    <div class="spinner"></div>
+    <span class="loading-text">
+        Loading <strong>ODI <span class="light">Mini…</span></strong>
+    </span>
+</div>
+
+<div class="text-center mt-5">
+    <h5 class="display-4">ODI Mini!</h5>
+</div>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="text-center mt-3">
+        <p>Hello, @User.FindFirst("name")?.Value!</p>
+        @* <p><a href="/Home/Activation">Go to secure page</a></p> *@
+        <p><a href="/Home/Logout">Logout</a></p>
+    </div>
+}
+else
+{
+    <div class="text-center mt-3">
+        @* <p><a href="/Home/Activation">Login to secure page</a></p> *@
+    </div>
+}
+
+@section Scripts {
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                if (loader) loader.style.display = 'none';
+            }, 1200);
+        });
+    </script>
+}
+
+<style>
+    #loading-screen {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom right, #fdfdfd, #f4f6f8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Segoe UI', Roboto, sans-serif;
+        color: #555;
+        z-index: 10;
+        font-size: 2rem;
+        text-align: center;
+        transition: opacity 0.4s ease;
+        top: -100px;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #d0d4d9;
+        border-top: 4px solid #4a90e2;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    .loading-text {
+        font-weight: 300;
+    }
+
+    .loading-text strong {
+        font-weight: 800;
+        color: #4a90e2;
+    }
+
+    .loading-text .light {
+        font-weight: 300;
+        display: inline-block;
+        transform: scale(0.9);
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>

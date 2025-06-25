@@ -1,0 +1,134 @@
+﻿@using Microsoft.AspNetCore.Authentication
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ODI Mini Portal</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1 0 auto;
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            padding: 1.5rem 0;
+            border-top: 1px solid #dee2e6;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 0.95rem;
+            color: #495057;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            max-height: 50px;
+        }
+
+        .footer-text {
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .footer-text strong {
+            font-weight: 600;
+            color: #777;
+        }
+
+        .language-selector select {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <main class="flex-fill position-relative">
+        @RenderBody()
+    </main>
+
+    <footer class="footer mt-auto">
+        <div class="container text-center">
+            <div class="footer-content">
+                <img src="/images/odi.jpg" alt="MoEYS Logo" class="footer-logo" />
+                <div class="footer-text">
+                    Powered by <strong>Office of Digital Infrastructure</strong><br />
+                    <strong>DDT, MoEYS</strong><br />
+                    @* <strong>Ministry of Education, Youth and Sport</strong> *@
+                </div>
+                @* <div class="language-selector">
+                    <select aria-label="Language selector">
+                        <option value="en">English</option>
+                        <option value="km">ភាសាខ្មែរ</option>
+                    </select>
+                </div> *@
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        async function sendTokenToPhotino() {
+            try {
+                const response = await fetch('/internal/token', {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) return;
+
+                const data = await response.json();
+                const encoded = btoa(JSON.stringify(data));
+
+                if (window.external && window.external.sendMessage) {
+                    window.external.sendMessage(encoded);
+                }
+            } catch (err) {
+                console.error("Failed to send token:", err);
+            }
+        }
+
+        window.addEventListener("load", sendTokenToPhotino);
+    </script>
+
+    @* <script>
+        // Optional: language selector persistence
+        document.querySelector('.language-selector select')?.addEventListener('change', function () {
+            localStorage.setItem('preferredLanguage', this.value);
+            alert('Language changed to: ' + this.value);
+        });
+
+        window.addEventListener('load', () => {
+            const lang = localStorage.getItem('preferredLanguage');
+            if (lang) document.querySelector('.language-selector select').value = lang;
+        });
+    </script> *@
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

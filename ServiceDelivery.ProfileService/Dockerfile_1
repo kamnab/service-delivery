@@ -1,0 +1,34 @@
+# -------- Build Stage --------
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /source
+
+# Copy project and restore
+COPY . .
+RUN dotnet restore "./ServiceDelivery.ProfileService.csproj"
+
+# Build and publish in Release mode
+RUN dotnet publish "./ServiceDelivery.ProfileService.csproj" -c Release -o /app/publish
+
+# -------- Runtime Stage --------
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
+
+# -------- Add HTTPS --------
+# Install OpenSSL if you generate self-signed certs inside the container
+RUN apt-get update && apt-get install -y openssl
+
+# Copy published files from build
+COPY --from=build /app/publish .
+
+# -------- Add HTTPS --------
+# Optional: Copy self-signed cert generator
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Expose HTTP port only
+EXPOSE 80
+# -------- Add HTTPS --------
+EXPOSE 443
+
+# Run the app
+ENTRYPOINT ["/entrypoint.sh"]
