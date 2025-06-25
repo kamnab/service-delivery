@@ -79,7 +79,7 @@ jobs:
               --restart unless-stopped \
               --env-file ~/profile-service.env \
               -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx \
-              -p 5501:443 -p 5502:80 \
+              -p 5501:80 \
               odi-profile-service:prod
 
           EOF
