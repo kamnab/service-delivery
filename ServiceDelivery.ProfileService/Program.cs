@@ -41,13 +41,13 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(); // << Add this!
 
 #region PersistKeysToFileSystem 
-var keyStoragePath = false //DockerHelpers.IsRunningInDocker()
+var keyStoragePath = Environment.GetEnvironmentVariable("CONTAINERIZE") == "true"
     ? "/app/Infrastructure/Resources" // for Docker
     : Path.Combine(Directory.GetCurrentDirectory(), "Infrastructure", "Resources"); // for local dev
 
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(keyStoragePath))
-    .SetApplicationName("sdc-hub");
+    .SetApplicationName("ODI Profile Service");
 #endregion
 
 builder.Services.AddHttpClient(); // Required for IHttpClientFactory
@@ -76,6 +76,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();
