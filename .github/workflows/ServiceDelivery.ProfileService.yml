@@ -1,0 +1,84 @@
+name: Deploy to Remote Host
+
+on:
+  push:
+    branches:
+      - main  # Change to your main branch if it's different
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Build Docker image
+        run: |
+            docker build -t odi-profile-service:prod .
+  
+      - name: SCP Docker image to remote server
+        run: |
+            docker save odi-profile-service | bzip2 | ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'bunzip2 | docker load'
+      
+      - name: Transfer .env and cert to remote
+        run: |
+          scp -o StrictHostKeyChecking=no .env ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.env
+          scp -o StrictHostKeyChecking=no Infrastructure/Resources/https/profile-service.pfx ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.pfx
+
+      - name: Check and Install Docker if not present
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            if ! command -v docker &> /dev/null
+            then
+              echo "Docker is not installed. Installing Docker..."
+              
+              # Install necessary packages for Docker installation
+              sudo apt-get update -y
+              sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+  
+              # Add Docker’s GPG key
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  
+              # Add Docker repository to APT sources
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  
+              # Update the package list and install Docker
+              sudo apt-get update -y
+              sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+  
+              # Enable and start Docker service
+              sudo systemctl enable docker
+              sudo systemctl start docker
+  
+              # Add the current user to the docker group (if needed)
+              sudo usermod -aG docker $USER
+            else
+              echo "Docker is already installed."
+            fi
+          EOF
+
+      - name: Run Docker container on remote server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+
+            # Stop and remove the existing container if it exists
+            if [ $(docker ps -a -q -f name=odi-profile-service) ]; then
+              docker stop odi-profile-service || true
+              docker rm odi-profile-service || true
+            fi
+
+            # Run the new container
+            docker run -d \
+              --name odi-profile-service \
+              --env-file ~/profile-service.env \
+              -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx \
+              -p 5501:5501 -p 5502:5502 \
+              odi-profile-service:prod
+
+          EOF
