@@ -20,7 +20,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-            docker build -t odi-profile-service:prod .
+            docker build -f ./ServiceDelivery.ProfileService/Dockerfile -t odi-profile-service:prod ./ServiceDelivery.ProfileService
   
       - name: SCP Docker image to remote server
         run: |
