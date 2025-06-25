@@ -50,9 +50,10 @@ builder.Services.AddDataProtection()
     .SetApplicationName("ODI Profile Service");
 #endregion
 
+
 builder.Services.AddHttpClient(); // Required for IHttpClientFactory
 builder.Services.AddScoped<ITokenRefreshService, TokenRefreshService>();
-
+builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -66,6 +67,7 @@ if (!app.Environment.IsDevelopment())
 
 // app.UseHttpsRedirection();
 app.UseRouting();
+app.UseCors(configure => configure.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
 app.UseAuthentication();
 app.UseAuthorization();
