@@ -96,7 +96,7 @@ jobs:
             docker run -d \
               --name odi-profile-service \
               --network root_default \  # must match NPM’s network
-              --env-file ./profile-service.env \
+              --env-file ~/profile-service.env \
               -p 5502:80 \  # optional if you only want internal traffic
               odi-profile-service:prod
 
