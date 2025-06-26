@@ -8,14 +8,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddDataProtection();
+
+#region PersistKeysToFileSystem 
+var keyStoragePath = Environment.GetEnvironmentVariable("CONTAINERIZE") == "true"
+    ? "/app/Infrastructure/Resources" // for Docker
+    : Path.Combine(Directory.GetCurrentDirectory(), "Infrastructure", "Resources"); // for local dev
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keyStoragePath))
+    .SetApplicationName("ODI Profile Service");
+#endregion
 
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
 })
-.AddCookie()
+.AddCookie(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+})
 .AddOpenIdConnect(options =>
 {
     options.Authority = builder.Configuration["Auth:Issuer"]; // Your Identity Server
@@ -37,19 +50,13 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("sdc-api");
 
     // Optional: configure token validation, events, etc.
+    options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+    options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 builder.Services.AddAuthorization(); // << Add this!
 
-#region PersistKeysToFileSystem 
-// var keyStoragePath = Environment.GetEnvironmentVariable("CONTAINERIZE") == "true"
-//     ? "/app/Infrastructure/Resources" // for Docker
-//     : Path.Combine(Directory.GetCurrentDirectory(), "Infrastructure", "Resources"); // for local dev
 
-// builder.Services.AddDataProtection()
-//     .PersistKeysToFileSystem(new DirectoryInfo(keyStoragePath))
-//     .SetApplicationName("ODI Profile Service");
-#endregion
 
 
 builder.Services.AddHttpClient(); // Required for IHttpClientFactory
