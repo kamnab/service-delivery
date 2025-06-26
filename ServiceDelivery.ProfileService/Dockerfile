@@ -18,7 +18,7 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Expose port
-EXPOSE 5503
+EXPOSE 443 80 5503
 
 # Run app
 ENTRYPOINT ["/entrypoint.sh"]
