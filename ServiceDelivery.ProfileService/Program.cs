@@ -5,13 +5,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 // builder.WebHost.UseUrls("https://localhost:5501");
-builder.WebHost.UseKestrel(opts =>
-{
-    opts.ListenAnyIP(443, listenOptions =>
-    {
-        listenOptions.UseHttps("/app/Infrastructure/Resources/https/profile-service.pfx", "changeit");
-    });
-});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
