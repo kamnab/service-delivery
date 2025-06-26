@@ -55,10 +55,13 @@ builder.Services.AddAuthentication(options =>
 
     options.Events.OnRedirectToIdentityProvider = context =>
     {
-        var request = context.Request;
-
-        // Replace with your public domain and HTTPS
-        context.ProtocolMessage.RedirectUri = "https://odi-profile.codemie.dev/signin-oidc";
+        // Force HTTPS in redirect_uri
+        var uriBuilder = new UriBuilder(context.ProtocolMessage.RedirectUri)
+        {
+            Scheme = "https",
+            Port = -1 // remove port if it's 443
+        };
+        context.ProtocolMessage.RedirectUri = uriBuilder.ToString();
         return Task.CompletedTask;
     };
 
@@ -67,6 +70,7 @@ builder.Services.AddAuthentication(options =>
         context.ProtocolMessage.PostLogoutRedirectUri = "https://odi-profile.codemie.dev/signout-callback-oidc";
         return Task.CompletedTask;
     };
+
 
 });
 
