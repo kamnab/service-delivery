@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
-// builder.WebHost.UseUrls("https://localhost:5501");
+builder.WebHost.UseUrls("http://0.0.0.0:80");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
