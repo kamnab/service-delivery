@@ -88,8 +88,8 @@ jobs:
               --name odi-profile-service \
               --network root_default \
               --env-file ~/profile-service.env \
-              -p 5501:443 \     # map container HTTPS (443) to host 5501
-              -p 5502:80 \      # map container HTTP (80) to host 5502
+              -p 5501:443 \     
+              -p 5502:80 \      
               -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx:ro \
               odi-profile-service:prod
 
