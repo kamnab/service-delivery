@@ -74,14 +74,22 @@ jobs:
             fi
 
             # Run the new container
-            docker network connect root_default odi-profile-service || true
+            # docker network connect root_default odi-profile-service || true
+
+            # docker run -d \
+            #   --name odi-profile-service \
+            #   --network root_default \
+            #   --env-file ~/profile-service.env \
+            #   -p 5501:443 -p 5502:80
+            #   -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx
+            #   odi-profile-service:prod
 
             docker run -d \
               --name odi-profile-service \
-              --network root_default \
               --env-file ~/profile-service.env \
-              -p 5501:443 -p 5502:80
-              -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx
+              -p 5501:443 \
+              -p 5502:80 \
+              -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx \
               odi-profile-service:prod
 
           EOF
