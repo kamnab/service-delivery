@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 // builder.WebHost.UseUrls("https://localhost:5501");
@@ -56,6 +57,14 @@ builder.Services.AddScoped<ITokenRefreshService, TokenRefreshService>();
 builder.Services.AddCors();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    ForwardLimit = null,   // Trust all proxies (optional, but common in Docker)
+    KnownNetworks = { },   // Clear to trust any network (optional)
+    KnownProxies = { }
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
