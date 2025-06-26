@@ -16,7 +16,7 @@
 @if (User.Identity?.IsAuthenticated == true)
 {
     <div class="text-center mt-3">
-        <p>Hello, @User.FindFirst("name")?.Value!</p>
+        <p>Hello, @User.FindFirst("display_name")?.Value!</p>
         @* <p><a href="/Home/Activation">Go to secure page</a></p> *@
         <p><a href="/Home/Logout">Logout</a></p>
     </div>
