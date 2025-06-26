@@ -52,6 +52,22 @@ builder.Services.AddAuthentication(options =>
     // Optional: configure token validation, events, etc.
     options.CorrelationCookie.SameSite = SameSiteMode.Lax;
     options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+
+    options.Events.OnRedirectToIdentityProvider = context =>
+    {
+        var request = context.Request;
+
+        // Replace with your public domain and HTTPS
+        context.ProtocolMessage.RedirectUri = "https://odi-profile.codemie.dev/signin-oidc";
+        return Task.CompletedTask;
+    };
+
+    options.Events.OnRedirectToIdentityProviderForSignOut = context =>
+    {
+        context.ProtocolMessage.PostLogoutRedirectUri = "https://odi-profile.codemie.dev/signout-callback-oidc";
+        return Task.CompletedTask;
+    };
+
 });
 
 builder.Services.AddAuthorization(); // << Add this!
