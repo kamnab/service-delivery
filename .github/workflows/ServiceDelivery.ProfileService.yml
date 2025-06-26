@@ -74,11 +74,12 @@ jobs:
             fi
 
             # Run the new container
+            docker network connect root_default odi-profile-service || true
+
             docker run -d \
               --name odi-profile-service \
-              --restart unless-stopped \
+              --network root_default \
               --env-file ~/profile-service.env \
-              -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx \
               odi-profile-service:prod
 
           EOF

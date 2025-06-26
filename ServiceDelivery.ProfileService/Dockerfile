@@ -17,8 +17,8 @@ COPY --from=build /app/publish .
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Ports
-# EXPOSE 5502
+# Expose port (used inside Docker network, no HTTPS)
+EXPOSE 80
 
 # Run app
 ENTRYPOINT ["/entrypoint.sh"]
