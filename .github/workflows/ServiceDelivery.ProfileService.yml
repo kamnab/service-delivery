@@ -90,6 +90,7 @@ jobs:
               --env-file ~/profile-service.env \
               -p 5501:443 \
               -p 5502:80 \
+              -p 5503:5503 \
               -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx:ro \
               odi-profile-service:prod
 
