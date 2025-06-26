@@ -70,15 +70,19 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
+// IMPORTANT: Respect NGINX headers for real scheme/host
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
+    ForwardLimit = 1,
+    KnownNetworks = { }, // Allow all (safe behind NPM)
+    KnownProxies = { }
+});
+
 // app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors(configure => configure.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
-
-// Add forwarded headers middleware **before** auth
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
 
 app.UseAuthentication();
 app.UseAuthorization();
