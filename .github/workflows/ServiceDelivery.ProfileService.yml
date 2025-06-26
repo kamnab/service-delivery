@@ -87,8 +87,8 @@ jobs:
             docker run -d \
               --name odi-profile-service \
               --env-file ~/profile-service.env \
-              -p 5501:5501 \
-              -p 5502:5502 \
+              -p 5501:443 \
+              -p 5502:80 \
               -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx \
               odi-profile-service:prod
 
