@@ -24,11 +24,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
 })
-.AddCookie(options =>
-{
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-})
+.AddCookie()
 .AddOpenIdConnect(options =>
 {
     options.Authority = builder.Configuration["Auth:Issuer"]; // Your Identity Server
@@ -50,48 +46,15 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("sdc-api");
 
     // Optional: configure token validation, events, etc.
-    options.CorrelationCookie.SameSite = SameSiteMode.Lax;
-    options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
-
-    options.Events.OnRedirectToIdentityProvider = context =>
-    {
-        // Force HTTPS in redirect_uri
-        var uriBuilder = new UriBuilder(context.ProtocolMessage.RedirectUri)
-        {
-            Scheme = "https",
-            Port = -1 // remove port if it's 443
-        };
-        context.ProtocolMessage.RedirectUri = uriBuilder.ToString();
-        return Task.CompletedTask;
-    };
-
-    options.Events.OnRedirectToIdentityProviderForSignOut = context =>
-    {
-        context.ProtocolMessage.PostLogoutRedirectUri = "https://odi-profile.codemie.dev/signout-callback-oidc";
-        return Task.CompletedTask;
-    };
-
-
 });
 
 builder.Services.AddAuthorization(); // << Add this!
-
-
-
 
 builder.Services.AddHttpClient(); // Required for IHttpClientFactory
 builder.Services.AddScoped<ITokenRefreshService, TokenRefreshService>();
 builder.Services.AddCors();
 
 var app = builder.Build();
-
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    ForwardLimit = null,   // Trust all proxies (optional, but common in Docker)
-    KnownNetworks = { },   // Clear to trust any network (optional)
-    KnownProxies = { }
-});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
