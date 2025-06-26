@@ -46,6 +46,12 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("sdc-api");
 
     // Optional: configure token validation, events, etc.
+    // Optional: Event to force override RedirectUri if needed
+    options.Events.OnRedirectToIdentityProvider = context =>
+    {
+        context.ProtocolMessage.RedirectUri = "https://odi-profile.codemie.dev/signin-oidc";
+        return Task.CompletedTask;
+    };
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
