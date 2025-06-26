@@ -73,9 +73,6 @@ jobs:
               docker rm odi-profile-service || true
             fi
 
-            # Run the new container
-            docker network connect root_default odi-profile-service || true
-
             # docker run -d \
             #   --name odi-profile-service \
             #   --network root_default \
@@ -94,12 +91,10 @@ jobs:
             #   odi-profile-service:prod
 
             docker run -d \
-              --name odi-profile-service \
-              --network root_default \  
-              --env-file ~/profile-service.env \
-              -p 5502:80 \  
-              odi-profile-service:prod
-
-
+                --name odi-profile-service \
+                --network root_default \
+                --env-file ~/profile-service.env \
+                -p 5502:80 \
+                odi-profile-service:prod
 
           EOF
