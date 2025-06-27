@@ -21,8 +21,8 @@ EXPOSE 80
 COPY --from=build /app/publish .
 
 # Entry script
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 # No password
 ENV KESTREL__ENDPOINTS__HTTPS__URL=https://+:443
@@ -30,7 +30,7 @@ ENV KESTREL__ENDPOINTS__HTTPS__CERT__PATH=/app/https/https.pfx
 ENV KESTREL__ENDPOINTS__HTTPS__CERT__PASSWORD=""
 
 # Run app
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 
 # docker run --rm --env-file .env odi-profile-service:dev env | grep ASPNETCORE
