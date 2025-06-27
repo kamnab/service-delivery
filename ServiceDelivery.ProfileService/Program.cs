@@ -110,12 +110,12 @@ app.Use(async (context, next) =>
             Console.WriteLine($"{h.Key}: {h.Value}");
     }
 
-    if (string.IsNullOrWhiteSpace(context.Request.Headers["X-Forwarded-Proto"]))
-    {
-        context.Response.StatusCode = 403;
-        await context.Response.WriteAsync("Direct access blocked. Use the reverse proxy.");
-        return;
-    }
+    // if (string.IsNullOrWhiteSpace(context.Request.Headers["X-Forwarded-Proto"]))
+    // {
+    //     context.Response.StatusCode = 403;
+    //     await context.Response.WriteAsync("Direct access blocked. Use the reverse proxy.");
+    //     return;
+    // }
 
     await next();
 });
