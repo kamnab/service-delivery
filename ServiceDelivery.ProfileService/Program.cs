@@ -59,24 +59,23 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("sdc-api");
 
     // Optional: configure token validation, events, etc.
+    // ✅ Key Fix: Ensure redirect_uri uses HTTPS from forwarded headers
     options.Events.OnRedirectToIdentityProvider = context =>
     {
         var request = context.Request;
-        var forwardedProto = request.Headers["X-Forwarded-Proto"].ToString();
+        var proto = request.Headers["X-Forwarded-Proto"].ToString();
+        var scheme = string.IsNullOrEmpty(proto) ? request.Scheme : proto;
 
-        var scheme = string.IsNullOrEmpty(forwardedProto) ? request.Scheme : forwardedProto;
-
-        var uriBuilder = new UriBuilder
+        context.ProtocolMessage.RedirectUri = new UriBuilder
         {
             Scheme = scheme,
             Host = request.Host.Host,
+            Port = request.Host.Port ?? -1,
             Path = context.Options.CallbackPath
-        };
+        }.ToString();
 
-        context.ProtocolMessage.RedirectUri = uriBuilder.ToString();
         return Task.CompletedTask;
     };
-
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -100,14 +99,15 @@ var forwardedHeadersOptions = new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 };
 
-// // Clear default known networks and proxies
-// forwardedHeadersOptions.KnownNetworks.Clear();
-// forwardedHeadersOptions.KnownProxies.Clear();
-// // TODO: Replace with your NPM container IP address on Docker network:
-// forwardedHeadersOptions.KnownProxies.Add(IPAddress.Parse("::ffff:172.18.0.2"));
+// Clear default known networks and proxies
+forwardedHeadersOptions.KnownNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+// TODO: Replace with your NPM container IP address on Docker network:
+forwardedHeadersOptions.KnownProxies.Add(IPAddress.Parse("::ffff:172.18.0.2"));
 
 app.UseForwardedHeaders(forwardedHeadersOptions);
 
+// ✅ Debug: Show forwarded headers & remote IP
 app.Use(async (context, next) =>
 {
     /*
@@ -122,10 +122,16 @@ app.Use(async (context, next) =>
 
     if (context.Request.Path.StartsWithSegments("/signin-oidc"))
     {
-        foreach (var header in context.Request.Headers)
-        {
-            Console.WriteLine($"{header.Key}: {header.Value}");
-        }
+        Console.WriteLine("=== /signin-oidc Headers ===");
+        foreach (var h in context.Request.Headers)
+            Console.WriteLine($"{h.Key}: {h.Value}");
+    }
+
+    if (!context.Request.Headers.ContainsKey("X-Forwarded-Proto"))
+    {
+        context.Response.StatusCode = 403;
+        await context.Response.WriteAsync("Direct access blocked. Use the reverse proxy.");
+        return;
     }
 
     await next();
