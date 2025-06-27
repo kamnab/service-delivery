@@ -15,7 +15,10 @@ if [ ! -f "$CERT_PATH" ]; then
     -in /https/cert.pem \
     -passout pass:
 else
-  echo "✅ Certificate already exists: $CERT_PATH"
+  echo "✅ Certificate already exists at $CERT_PATH"
 fi
+
+echo "Listing cert file:"
+ls -l $CERT_PATH
 
 exec dotnet ServiceDelivery.ProfileService.dll
