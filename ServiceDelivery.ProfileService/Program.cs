@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
@@ -76,10 +77,19 @@ builder.Services.AddCors();
 var app = builder.Build();
 
 // Tell ASP.NET Core to use forwarded headers to detect original scheme and host
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+// IMPORTANT: Trust forwarded headers from your NPM proxy IP
+var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
-    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
-});
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+
+// Clear default known networks and proxies
+forwardedHeadersOptions.KnownNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+// TODO: Replace with your NPM container IP address on Docker network:
+forwardedHeadersOptions.KnownProxies.Add(IPAddress.Parse("172.18.0.2"));
+
+app.UseForwardedHeaders(forwardedHeadersOptions);
 
 app.Use(async (context, next) =>
 {
