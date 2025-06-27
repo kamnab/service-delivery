@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 // Delay HTTPS configuration until cert file exists
-var certPath = "/app/https/https.pfx";
+var certPath = "/https/https.pfx";
 var certPassword = "";
 
 

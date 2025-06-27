@@ -1,25 +1,14 @@
 #!/bin/sh
+CERT_PATH="/https/https.pfx"
 
-CERT_DIR="/https"
-CERT_PATH="$CERT_DIR/https.pfx"
-
-# Generate cert only if it doesn't exist
 if [ ! -f "$CERT_PATH" ]; then
-  echo "🔧 Generating self-signed HTTPS certificate..."
-  mkdir -p $CERT_DIR
-  openssl req -x509 -newkey rsa:4096 -nodes \
-    -subj "/CN=localhost" \
-    -keyout "$CERT_DIR/key.pem" -out "$CERT_DIR/cert.pem" -days 365
-
-  openssl pkcs12 -export \
-    -out "$CERT_PATH" \
-    -inkey "$CERT_DIR/key.pem" \
-    -in "$CERT_DIR/cert.pem" \
-    -passout pass:
+  echo "🔧 Generating cert..."
+  mkdir -p /https
+  openssl req -x509 -newkey rsa:4096 -nodes -subj "/CN=localhost" \
+    -keyout /https/key.pem -out /https/cert.pem -days 365
+  openssl pkcs12 -export -out "$CERT_PATH" -inkey /https/key.pem -in /https/cert.pem -passout pass:
+  chmod 644 "$CERT_PATH"
 fi
 
-echo "✅ HTTPS certificate is ready at $CERT_PATH"
-ls -lh "$CERT_PATH"
-
-# Launch the app
+echo "✅ HTTPS certificate ready at $CERT_PATH"
 exec dotnet ServiceDelivery.ProfileService.dll
