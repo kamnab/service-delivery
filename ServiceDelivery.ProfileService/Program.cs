@@ -88,19 +88,19 @@ if (!app.Environment.IsDevelopment())
 
 
 // IMPORTANT: Respect NGINX headers for real scheme/host
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
-    ForwardLimit = 1,
-    KnownNetworks = { }, // Allow all (safe behind NPM)
-    KnownProxies = { }
+// app.UseForwardedHeaders(new ForwardedHeadersOptions
+// {
+//     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
+//     ForwardLimit = 1,
+//     KnownNetworks = { }, // Allow all (safe behind NPM)
+//     KnownProxies = { }
 
-    /* IN NPM - Advance Tab
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header X-Forwarded-Host $host;
-    */
-});
+//     /* IN NPM - Advance Tab
+//     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+//     proxy_set_header X-Forwarded-Proto $scheme;
+//     proxy_set_header X-Forwarded-Host $host;
+//     */
+// });
 
 // app.UseHttpsRedirection();
 app.UseRouting();

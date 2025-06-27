@@ -30,7 +30,7 @@ jobs:
         run: |
           scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/.env ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.env
           scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/Infrastructure/Resources/https/profile-service.pfx ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.pfx
-          scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/Infrastructure/Resources/https/profile-service.crt ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.crt
+          # scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/Infrastructure/Resources/https/profile-service.crt ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.crt
 
       - name: Check and Install Docker if not present
         run: |
@@ -100,7 +100,7 @@ jobs:
                 odi-profile-service:prod
 
             # Copy and trust the cert inside the container
-            docker cp ~/profile-service.crt odi-profile-service:/usr/local/share/ca-certificates/profile-service.crt
-            docker exec odi-profile-service update-ca-certificates
+            # docker cp ~/profile-service.crt odi-profile-service:/usr/local/share/ca-certificates/profile-service.crt
+            # docker exec odi-profile-service update-ca-certificates
 
           EOF
