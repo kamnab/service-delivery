@@ -83,11 +83,11 @@ var forwardedHeadersOptions = new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 };
 
-// Clear default known networks and proxies
-forwardedHeadersOptions.KnownNetworks.Clear();
-forwardedHeadersOptions.KnownProxies.Clear();
-// TODO: Replace with your NPM container IP address on Docker network:
-forwardedHeadersOptions.KnownProxies.Add(IPAddress.Parse("::ffff:172.18.0.2"));
+// // Clear default known networks and proxies
+// forwardedHeadersOptions.KnownNetworks.Clear();
+// forwardedHeadersOptions.KnownProxies.Clear();
+// // TODO: Replace with your NPM container IP address on Docker network:
+// forwardedHeadersOptions.KnownProxies.Add(IPAddress.Parse("::ffff:172.18.0.2"));
 
 app.UseForwardedHeaders(forwardedHeadersOptions);
 
