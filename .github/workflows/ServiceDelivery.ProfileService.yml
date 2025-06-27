@@ -106,6 +106,7 @@ jobs:
             docker run -d \
                 --name odi-profile-service \
                 --network root_default \
+                -p 5501:443 -p 5502:80 \
                 odi-profile-service:prod
 
           EOF
