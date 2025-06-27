@@ -75,6 +75,12 @@ builder.Services.AddCors();
 
 var app = builder.Build();
 
+// Tell ASP.NET Core to use forwarded headers to detect original scheme and host
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
+});
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
