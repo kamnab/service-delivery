@@ -85,6 +85,9 @@ var forwardedHeadersOptions = new ForwardedHeadersOptions
 // Clear default known networks and proxies
 forwardedHeadersOptions.KnownNetworks.Clear();
 forwardedHeadersOptions.KnownProxies.Clear();
+forwardedHeadersOptions.RequireHeaderSymmetry = false;
+forwardedHeadersOptions.ForwardLimit = null;
+
 // TODO: Replace with your NPM container IP address on Docker network:
 forwardedHeadersOptions.KnownProxies.Add(IPAddress.Parse("172.18.0.2"));
 
