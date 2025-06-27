@@ -60,20 +60,23 @@ builder.Services.AddAuthentication(options =>
 
     // Optional: configure token validation, events, etc.
     options.Events.OnRedirectToIdentityProvider = context =>
-        {
-            // Force scheme and host to HTTPS
-            var request = context.Request;
-            var uriBuilder = new UriBuilder
-            {
-                Scheme = "https",
-                Host = request.Host.Host,
-                // Port = 443,
-                Path = context.Options.CallbackPath
-            };
+    {
+        var request = context.Request;
+        var forwardedProto = request.Headers["X-Forwarded-Proto"].ToString();
 
-            context.ProtocolMessage.RedirectUri = uriBuilder.ToString();
-            return Task.CompletedTask;
+        var scheme = string.IsNullOrEmpty(forwardedProto) ? request.Scheme : forwardedProto;
+
+        var uriBuilder = new UriBuilder
+        {
+            Scheme = scheme,
+            Host = request.Host.Host,
+            Path = context.Options.CallbackPath
         };
+
+        context.ProtocolMessage.RedirectUri = uriBuilder.ToString();
+        return Task.CompletedTask;
+    };
+
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
