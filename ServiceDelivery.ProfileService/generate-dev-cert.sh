@@ -3,7 +3,7 @@
 
 mkdir -p Infrastructure/Resources/https
 
-mkcert -pkcs12 -p12-file Infrastructure/Resources/https/profile-service.pfx localhost 100.42.176.103 odi-profile.codemie.dev 127.0.0.1 ::1
+mkcert -pkcs12 -p12-file Infrastructure/Resources/https/profile-service.pfx localhost 100.42.176.103 odi-profile.codemie.dev odi-profile-service 127.0.0.1 ::1
 
 echo "✅ Trusted HTTPS cert generated at Infrastructure/Resources/https/profile-service.pfx"
 
