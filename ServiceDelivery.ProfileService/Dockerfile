@@ -10,26 +10,20 @@ RUN dotnet publish "./ServiceDelivery.ProfileService.csproj" -c Release -o /app/
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 
-# Install OpenSSL (needed to generate cert)
 RUN apt-get update && apt-get install -y openssl
 
-# Expose HTTPS
 EXPOSE 443
 EXPOSE 80
 
-# Copy app
 COPY --from=build /app/publish .
 
-# Entry script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# No password
 ENV KESTREL__ENDPOINTS__HTTPS__URL=https://+:443
-ENV KESTREL__ENDPOINTS__HTTPS__CERT__PATH=/app/https/https.pfx
+ENV KESTREL__ENDPOINTS__HTTPS__CERT__PATH=/https/https.pfx
 ENV KESTREL__ENDPOINTS__HTTPS__CERT__PASSWORD=""
 
-# Run app
 ENTRYPOINT ["/entrypoint.sh"]
 
 

@@ -4,13 +4,16 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.ConfigureKestrel(serverOptions =>
+builder.WebHost.ConfigureKestrel(options =>
 {
-    serverOptions.ListenAnyIP(443, listenOptions =>
+    options.ListenAnyIP(443, listenOptions =>
     {
         listenOptions.UseHttps("/https/https.pfx", "");
     });
+
+    options.ListenAnyIP(80); // Optional HTTP endpoint
 });
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
