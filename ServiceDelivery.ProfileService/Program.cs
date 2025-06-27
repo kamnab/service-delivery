@@ -67,7 +67,7 @@ builder.Services.AddAuthentication(options =>
             {
                 Scheme = "https",
                 Host = request.Host.Host,
-                Port = 443,
+                // Port = 443,
                 Path = context.Options.CallbackPath
             };
 
