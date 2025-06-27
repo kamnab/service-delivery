@@ -106,7 +106,8 @@ jobs:
             docker run -d \
                 --name odi-profile-service \
                 --network root_default \
-                --env ASPNETCORE_URLS=http://+:80 \
+                -e ASPNETCORE_ENVIRONMENT=Production \
+                -p 5501:443 \
                 -p 5502:80 \
                 odi-profile-service:prod
 

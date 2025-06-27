@@ -7,8 +7,14 @@ using Microsoft.AspNetCore.HttpOverrides;
 var builder = WebApplication.CreateBuilder(args);
 
 // Delay HTTPS configuration until cert file exists
+var certPath = "/https/https.pfx";
+var certPassword = "";
 builder.WebHost.ConfigureKestrel(options =>
 {
+    options.ListenAnyIP(443, listenOptions =>
+    {
+        listenOptions.UseHttps(certPath, certPassword);
+    });
     options.ListenAnyIP(80); // Optional HTTP
 });
 
@@ -53,12 +59,12 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("sdc-api");
 
     // Optional: configure token validation, events, etc.
-    options.Events.OnRedirectToIdentityProvider = context =>
-    {
-        var scheme = context.Request.Headers["X-Forwarded-Proto"].ToString() ?? "http";
-        context.ProtocolMessage.RedirectUri = $"{scheme}://{context.Request.Host}{context.Options.CallbackPath}";
-        return Task.CompletedTask;
-    };
+    // options.Events.OnRedirectToIdentityProvider = context =>
+    // {
+    //     var scheme = context.Request.Headers["X-Forwarded-Proto"].ToString() ?? "http";
+    //     context.ProtocolMessage.RedirectUri = $"{scheme}://{context.Request.Host}{context.Options.CallbackPath}";
+    //     return Task.CompletedTask;
+    // };
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -76,10 +82,11 @@ builder.Services.AddCors();
 var app = builder.Build();
 
 // Tell ASP.NET Core to use forwarded headers to detect original scheme and host
+// 👇 You already have this (good!)
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
-    ForwardedHeaders = ForwardedHeaders.XForwardedProto,
-    KnownProxies = { IPAddress.Parse("172.18.0.2") } // NPM container IP
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    KnownProxies = { IPAddress.Parse("172.18.0.2") } // your NPM container IP
 });
 
 // ✅ Debug: Show forwarded headers & remote IP
@@ -102,7 +109,7 @@ app.Use(async (context, next) =>
             Console.WriteLine($"{h.Key}: {h.Value}");
     }
 
-    if (string.IsNullOrWhiteSpace(context.Request.Headers["X-Forwarded-Proto"]))
+    if (!context.Request.Headers.ContainsKey("X-Forwarded-Proto"))
     {
         context.Response.StatusCode = 403;
         await context.Response.WriteAsync("Direct access blocked. Use the reverse proxy.");
