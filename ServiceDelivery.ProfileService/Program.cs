@@ -81,6 +81,17 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
 });
 
+app.Use(async (context, next) =>
+{
+    /*
+    - If you see https, your app will know the original request scheme was HTTPS and will generate correct redirect URLs.
+    - If it’s empty or http, then the problem is on NPM’s side not forwarding the header correctly.
+    */
+    var proto = context.Request.Headers["X-Forwarded-Proto"].ToString();
+    Console.WriteLine($"X-Forwarded-Proto: {proto}");
+    await next();
+});
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
