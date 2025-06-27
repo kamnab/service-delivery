@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 // builder.WebHost.UseUrls("http://0.0.0.0:80");
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(80);
-    options.ListenAnyIP(443, listenOptions =>
-    {
-        listenOptions.UseHttps(Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path"), Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password"));
-    });
-});
+// builder.WebHost.ConfigureKestrel(options =>
+// {
+//     options.ListenAnyIP(80);
+//     options.ListenAnyIP(443, listenOptions =>
+//     {
+//         listenOptions.UseHttps(Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path"), Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password"));
+//     });
+// });
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -55,11 +55,11 @@ builder.Services.AddAuthentication(options =>
 
     // Optional: configure token validation, events, etc.
     // Optional: Event to force override RedirectUri if needed
-    options.Events.OnRedirectToIdentityProvider = context =>
-    {
-        context.ProtocolMessage.RedirectUri = "https://odi-profile.codemie.dev/signin-oidc";
-        return Task.CompletedTask;
-    };
+    // options.Events.OnRedirectToIdentityProvider = context =>
+    // {
+    //     context.ProtocolMessage.RedirectUri = "https://odi-profile.codemie.dev/signin-oidc";
+    //     return Task.CompletedTask;
+    // };
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -86,13 +86,13 @@ if (!app.Environment.IsDevelopment())
 
 
 // IMPORTANT: Respect NGINX headers for real scheme/host
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
-    ForwardLimit = 1,
-    KnownNetworks = { }, // Allow all (safe behind NPM)
-    KnownProxies = { }
-});
+// app.UseForwardedHeaders(new ForwardedHeadersOptions
+// {
+//     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
+//     ForwardLimit = 1,
+//     KnownNetworks = { }, // Allow all (safe behind NPM)
+//     KnownProxies = { }
+// });
 
 // app.UseHttpsRedirection();
 app.UseRouting();
