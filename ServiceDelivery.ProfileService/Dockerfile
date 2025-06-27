@@ -20,13 +20,6 @@ RUN chmod +x /entrypoint.sh
 # Expose port
 EXPOSE 5501 5502
 
-# Copy your .pfx and .crt certs into container
-COPY ./Infrastructure/Resources/https/profile-service.pfx /Infrastructure/Resources/https/profile-service.pfx
-COPY ./Infrastructure/Resources/https/profile-service.crt /usr/local/share/ca-certificates/profile-service.crt
-
-# Install cert into trusted CA store
-RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
-
 # Run app
 ENTRYPOINT ["/entrypoint.sh"]
 
