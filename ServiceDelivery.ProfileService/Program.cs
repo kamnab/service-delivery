@@ -5,30 +5,19 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 // Delay HTTPS configuration until cert file exists
-var certPath = "/https/https.pfx";
+var certPath = "/app/https/https.pfx";
 var certPassword = "";
 
-if (File.Exists(certPath))
-{
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.ListenAnyIP(443, listenOptions =>
-        {
-            listenOptions.UseHttps(certPath, certPassword);
-        });
 
-        options.ListenAnyIP(80); // Optional HTTP
-    });
-}
-else
+builder.WebHost.ConfigureKestrel(options =>
 {
-    Console.WriteLine($"❌ HTTPS cert not found at {certPath}");
-    // Optional: fall back to HTTP-only
-    builder.WebHost.ConfigureKestrel(options =>
+    options.ListenAnyIP(443, listenOptions =>
     {
-        options.ListenAnyIP(80);
+        listenOptions.UseHttps(certPath, certPassword);
     });
-}
+
+    options.ListenAnyIP(80); // Optional HTTP
+});
 
 
 // Add services to the container.
