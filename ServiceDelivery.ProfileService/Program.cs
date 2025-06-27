@@ -108,6 +108,11 @@ app.Use(async (context, next) =>
         }
     }
 
+    if (string.IsNullOrEmpty(context.Request.Headers["X-Forwarded-Proto"]) &&
+            context.Request.Headers.TryGetValue("X-Forwarded-Scheme", out Microsoft.Extensions.Primitives.StringValues value))
+    {
+        context.Request.Headers["X-Forwarded-Proto"] = value;
+    }
     await next();
 });
 
