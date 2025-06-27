@@ -5,15 +5,15 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 // builder.WebHost.UseUrls("http://0.0.0.0:80");
-// builder.WebHost.ConfigureKestrel(options =>
-// {
-//     options.ListenAnyIP(5501, listenOptions =>
-//     {
-//         listenOptions.UseHttps(
-//             Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path"),
-//             Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password"));
-//     });
-// });
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5501, listenOptions =>
+    {
+        listenOptions.UseHttps(
+            Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path"),
+            Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password"));
+    });
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -93,6 +93,12 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardLimit = 1,
     KnownNetworks = { }, // Allow all (safe behind NPM)
     KnownProxies = { }
+
+    /* IN NPM - Advance Tab
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+    */
 });
 
 // app.UseHttpsRedirection();
