@@ -99,6 +99,15 @@ app.Use(async (context, next) =>
     */
     var proto = context.Request.Headers["X-Forwarded-Proto"].ToString();
     Console.WriteLine($"X-Forwarded-Proto: {proto}");
+
+    if (context.Request.Path.StartsWithSegments("/signin-oidc"))
+    {
+        foreach (var header in context.Request.Headers)
+        {
+            Console.WriteLine($"{header.Key}: {header.Value}");
+        }
+    }
+
     await next();
 });
 
