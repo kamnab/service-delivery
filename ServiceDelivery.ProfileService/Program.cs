@@ -59,23 +59,6 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("sdc-api");
 
     // Optional: configure token validation, events, etc.
-    // ✅ Key Fix: Ensure redirect_uri uses HTTPS from forwarded headers
-    options.Events.OnRedirectToIdentityProvider = context =>
-    {
-        var request = context.Request;
-        var proto = request.Headers["X-Forwarded-Proto"].ToString();
-        var scheme = string.IsNullOrEmpty(proto) ? request.Scheme : proto;
-
-        context.ProtocolMessage.RedirectUri = new UriBuilder
-        {
-            Scheme = scheme,
-            Host = request.Host.Host,
-            Port = request.Host.Port ?? -1,
-            Path = context.Options.CallbackPath
-        }.ToString();
-
-        return Task.CompletedTask;
-    };
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -103,7 +86,7 @@ var forwardedHeadersOptions = new ForwardedHeadersOptions
 forwardedHeadersOptions.KnownNetworks.Clear();
 forwardedHeadersOptions.KnownProxies.Clear();
 // TODO: Replace with your NPM container IP address on Docker network:
-forwardedHeadersOptions.KnownProxies.Add(IPAddress.Parse("::ffff:172.18.0.2"));
+forwardedHeadersOptions.KnownProxies.Add(IPAddress.Parse("172.18.0.2"));
 
 app.UseForwardedHeaders(forwardedHeadersOptions);
 
@@ -127,7 +110,7 @@ app.Use(async (context, next) =>
             Console.WriteLine($"{h.Key}: {h.Value}");
     }
 
-    if (!context.Request.Headers.ContainsKey("X-Forwarded-Proto"))
+    if (string.IsNullOrWhiteSpace(context.Request.Headers["X-Forwarded-Proto"]))
     {
         context.Response.StatusCode = 403;
         await context.Response.WriteAsync("Direct access blocked. Use the reverse proxy.");
