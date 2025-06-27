@@ -94,7 +94,7 @@ jobs:
                 --name odi-profile-service \
                 --network root_default \
                 --env-file ~/profile-service.env \
-                -p 5501:5501 -p 5502:5502
+                -p 5501:5501 -p 5502:5502 \
                 -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx:ro \
                 odi-profile-service:prod
 
