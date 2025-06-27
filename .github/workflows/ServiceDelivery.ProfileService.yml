@@ -26,11 +26,11 @@ jobs:
         run: |
             docker save odi-profile-service:prod | bzip2 | ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'bunzip2 | docker load'
       
-      - name: Transfer .env and cert to remote
-        run: |
-          scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/.env ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.env
-          scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/Infrastructure/Resources/https/profile-service.pfx ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.pfx
-          # scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/Infrastructure/Resources/https/profile-service.crt ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.crt
+      # - name: Transfer .env and cert to remote
+      #   run: |
+      #     scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/.env ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.env
+      #     scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/Infrastructure/Resources/https/profile-service.pfx ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.pfx
+      #     # scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/Infrastructure/Resources/https/profile-service.crt ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.crt
 
       - name: Check and Install Docker if not present
         run: |
@@ -91,16 +91,22 @@ jobs:
             #   -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx:ro \
             #   odi-profile-service:prod
 
-            docker run -d \
-                --name odi-profile-service \
-                --network root_default \
-                --env-file ~/profile-service.env \
-                -p 5501:5501 -p 5502:5502 \
-                -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx:ro \
-                odi-profile-service:prod
+            # docker run -d \
+            #     --name odi-profile-service \
+            #     --network root_default \
+            #     --env-file ~/profile-service.env \
+            #     -p 5501:5501 -p 5502:5502 \
+            #     -v ~/profile-service.pfx:/app/Infrastructure/Resources/https/profile-service.pfx:ro \
+            #     odi-profile-service:prod
 
             # Copy and trust the cert inside the container
             # docker cp ~/profile-service.crt odi-profile-service:/usr/local/share/ca-certificates/profile-service.crt
             # docker exec odi-profile-service update-ca-certificates
+
+            docker run -d \
+                --name odi-profile-service \
+                --network root_default \
+                -p 5501:443  \
+                odi-profile-service:prod
 
           EOF

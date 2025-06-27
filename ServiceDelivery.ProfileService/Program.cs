@@ -4,23 +4,19 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
-// builder.WebHost.UseUrls("http://0.0.0.0:80");
-// builder.WebHost.ConfigureKestrel(options =>
-// {
-//     options.ListenAnyIP(5502);
-//     options.ListenAnyIP(5501, listenOptions =>
-//     {
-//         listenOptions.UseHttps(
-//             Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path"),
-//             Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password"));
-//     });
-// });
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(443, listenOptions =>
+    {
+        listenOptions.UseHttps("/app/https/https.pfx", "");
+    });
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 #region PersistKeysToFileSystem 
-var keyStoragePath = Environment.GetEnvironmentVariable("CONTAINERIZE") == "true"
+var keyStoragePath = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true"
     ? "/app/Infrastructure/Resources" // for Docker
     : Path.Combine(Directory.GetCurrentDirectory(), "Infrastructure", "Resources"); // for local dev
 
@@ -56,12 +52,7 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("sdc-api");
 
     // Optional: configure token validation, events, etc.
-    // Optional: Event to force override RedirectUri if needed
-    // options.Events.OnRedirectToIdentityProvider = context =>
-    // {
-    //     context.ProtocolMessage.RedirectUri = "https://odi-profile.codemie.dev/signin-oidc";
-    //     return Task.CompletedTask;
-    // };
+
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -86,23 +77,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-
-// IMPORTANT: Respect NGINX headers for real scheme/host
-// app.UseForwardedHeaders(new ForwardedHeadersOptions
-// {
-//     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
-//     ForwardLimit = 1,
-//     KnownNetworks = { }, // Allow all (safe behind NPM)
-//     KnownProxies = { }
-
-//     /* IN NPM - Advance Tab
-//     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-//     proxy_set_header X-Forwarded-Proto $scheme;
-//     proxy_set_header X-Forwarded-Host $host;
-//     */
-// });
-
-// app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors(configure => configure.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
