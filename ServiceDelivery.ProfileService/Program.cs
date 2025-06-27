@@ -97,7 +97,10 @@ app.Use(async (context, next) =>
     - If you see https, your app will know the original request scheme was HTTPS and will generate correct redirect URLs.
     - If it’s empty or http, then the problem is on NPM’s side not forwarding the header correctly.
     */
+    var remoteIp = context.Connection.RemoteIpAddress;
     var proto = context.Request.Headers["X-Forwarded-Proto"].ToString();
+
+    Console.WriteLine($"Remote IP: {remoteIp}");
     Console.WriteLine($"X-Forwarded-Proto: {proto}");
 
     if (context.Request.Path.StartsWithSegments("/signin-oidc"))
