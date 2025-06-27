@@ -4,18 +4,16 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
 // Delay HTTPS configuration until cert file exists
 var certPath = "/https/https.pfx";
 var certPassword = "";
-
-
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.ListenAnyIP(443, listenOptions =>
     {
         listenOptions.UseHttps(certPath, certPassword);
     });
-
     options.ListenAnyIP(80); // Optional HTTP
 });
 
@@ -85,7 +83,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors(configure => configure.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
