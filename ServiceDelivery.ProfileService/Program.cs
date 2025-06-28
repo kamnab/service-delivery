@@ -117,16 +117,16 @@ app.Use(async (context, next) =>
             Console.WriteLine($"{h.Key}: {h.Value}");
     }
 
-    var forwardedForExists = context.Request.Headers.ContainsKey("X-Forwarded-For");
+    // var forwardedForExists = context.Request.Headers.ContainsKey("X-Forwarded-For");
 
-    var isLocalRequest = remoteIp != null && IPAddress.IsLoopback(remoteIp);
+    // var isLocalRequest = remoteIp != null && IPAddress.IsLoopback(remoteIp);
 
-    if (!forwardedForExists && !isLocalRequest)
-    {
-        context.Response.StatusCode = StatusCodes.Status403Forbidden;
-        await context.Response.WriteAsync("Direct access blocked. Use the reverse proxy.");
-        return;
-    }
+    // if (!forwardedForExists && !isLocalRequest)
+    // {
+    //     context.Response.StatusCode = StatusCodes.Status403Forbidden;
+    //     await context.Response.WriteAsync("Direct access blocked. Use the reverse proxy.");
+    //     return;
+    // }
 
     await next();
 });
