@@ -109,9 +109,13 @@ app.Use(async (context, next) =>
             Console.WriteLine($"{h.Key}: {h.Value}");
     }
 
-    if (!context.Request.Headers.ContainsKey("X-Forwarded-Proto"))
+    var forwardedForExists = context.Request.Headers.ContainsKey("X-Forwarded-For");
+
+    var isLocalRequest = remoteIp != null && IPAddress.IsLoopback(remoteIp);
+
+    if (!forwardedForExists && !isLocalRequest)
     {
-        context.Response.StatusCode = 403;
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
         await context.Response.WriteAsync("Direct access blocked. Use the reverse proxy.");
         return;
     }
