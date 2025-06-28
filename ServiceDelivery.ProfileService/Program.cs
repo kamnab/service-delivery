@@ -61,8 +61,16 @@ builder.Services.AddAuthentication(options =>
     // Optional: configure token validation, events, etc.
     options.Events.OnRedirectToIdentityProvider = context =>
     {
-        var scheme = context.Request.Headers["X-Forwarded-Proto"].ToString() ?? "https";
-        context.ProtocolMessage.RedirectUri = $"{scheme}://{context.Request.Host}{context.Options.CallbackPath}";
+        var request = context.Request;
+        var uriBuilder = new UriBuilder
+        {
+            Scheme = request.Scheme,
+            Host = request.Host.Host,
+            Port = request.Host.Port ?? -1,
+            Path = context.ProtocolMessage.RedirectUri
+        };
+
+        context.ProtocolMessage.RedirectUri = uriBuilder.Uri.ToString();
         return Task.CompletedTask;
     };
 });
