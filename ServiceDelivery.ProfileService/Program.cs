@@ -107,7 +107,8 @@ app.Use(async (context, next) =>
     var remoteIp = context.Connection.RemoteIpAddress;
     var proto = context.Request.Headers["X-Forwarded-Proto"].ToString();
 
-    Console.WriteLine($"Remote IP: {remoteIp}");
+    Console.WriteLine($"Request Scheme: {context.Request.Scheme}");
+    Console.WriteLine($"Request Host: {context.Request.Host}");
     Console.WriteLine($"X-Forwarded-Proto: {proto}");
 
     if (context.Request.Path.StartsWithSegments("/signin-oidc"))
