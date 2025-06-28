@@ -59,20 +59,20 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("sdc-api");
 
     // Optional: configure token validation, events, etc.
-    options.Events.OnRedirectToIdentityProvider = context =>
-    {
-        var request = context.Request;
-        var uriBuilder = new UriBuilder
-        {
-            Scheme = request.Scheme,
-            Host = request.Host.Host,
-            Port = request.Host.Port ?? -1,
-            Path = context.ProtocolMessage.RedirectUri
-        };
+    // options.Events.OnRedirectToIdentityProvider = context =>
+    // {
+    //     var request = context.Request;
+    //     var uriBuilder = new UriBuilder
+    //     {
+    //         Scheme = request.Scheme,
+    //         Host = request.Host.Host,
+    //         Port = request.Host.Port ?? -1,
+    //         Path = context.ProtocolMessage.RedirectUri
+    //     };
 
-        context.ProtocolMessage.RedirectUri = uriBuilder.Uri.ToString();
-        return Task.CompletedTask;
-    };
+    //     context.ProtocolMessage.RedirectUri = uriBuilder.Uri.ToString();
+    //     return Task.CompletedTask;
+    // };
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
