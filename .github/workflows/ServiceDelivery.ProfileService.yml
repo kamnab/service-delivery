@@ -107,7 +107,9 @@ jobs:
                 --name odi-profile-service \
                 --network root_default \
                 -e ASPNETCORE_ENVIRONMENT=Production \
+                -e ASPNETCORE_HTTPS_PORTS=5501 \
                 -e ASPNETCORE_HTTP_PORTS=5502 \
+                -p 5501:5501 \
                 -p 5502:5502 \
                 odi-profile-service:prod
 

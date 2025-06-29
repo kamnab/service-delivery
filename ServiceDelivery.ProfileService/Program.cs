@@ -7,16 +7,16 @@ using Microsoft.AspNetCore.HttpOverrides;
 var builder = WebApplication.CreateBuilder(args);
 
 // Delay HTTPS configuration until cert file exists
-// var certPath = "/https/https.pfx";
-// var certPassword = "";
-// builder.WebHost.ConfigureKestrel(options =>
-// {
-//     options.ListenAnyIP(443, listenOptions =>
-//     {
-//         listenOptions.UseHttps(certPath, certPassword);
-//     });
-//     options.ListenAnyIP(80); // Optional HTTP
-// });
+var certPath = "/https/https.pfx";
+var certPassword = "";
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5501, listenOptions =>
+    {
+        listenOptions.UseHttps(certPath, certPassword);
+    });
+    options.ListenAnyIP(5502); // Optional HTTP
+});
 
 
 // Add services to the container.

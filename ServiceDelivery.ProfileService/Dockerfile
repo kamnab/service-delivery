@@ -12,6 +12,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y openssl
 
+EXPOSE 5501
 EXPOSE 5502
 
 COPY --from=build /app/publish .
