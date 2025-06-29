@@ -163,42 +163,6 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// ✅ Debug: Show forwarded headers & remote IP
-// app.Use(async (context, next) =>
-// {
-//     /*
-//     - If you see https, your app will know the original request scheme was HTTPS and will generate correct redirect URLs.
-//     - If it’s empty or http, then the problem is on NPM’s side not forwarding the header correctly.
-//     */
-//     var remoteIp = context.Connection.RemoteIpAddress;
-//     var proto = context.Request.Headers["X-Forwarded-Proto"].ToString();
-
-//     Console.WriteLine($"Request Scheme: {context.Request.Scheme}");
-//     Console.WriteLine($"Request Host: {context.Request.Host}");
-//     Console.WriteLine($"X-Forwarded-Proto: {proto}");
-
-//     if (context.Request.Path.StartsWithSegments("/signin-oidc"))
-//     {
-//         Console.WriteLine("=== /signin-oidc Headers ===");
-//         foreach (var h in context.Request.Headers)
-//             Console.WriteLine($"{h.Key}: {h.Value}");
-//     }
-
-//     // var forwardedForExists = context.Request.Headers.ContainsKey("X-Forwarded-For");
-
-//     // var isLocalRequest = remoteIp != null && IPAddress.IsLoopback(remoteIp);
-
-//     // if (!forwardedForExists && !isLocalRequest)
-//     // {
-//     //     context.Response.StatusCode = StatusCodes.Status403Forbidden;
-//     //     await context.Response.WriteAsync("Direct access blocked. Use the reverse proxy.");
-//     //     return;
-//     // }
-
-//     await next();
-// });
-
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
