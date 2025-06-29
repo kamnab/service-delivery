@@ -95,6 +95,15 @@ builder.Services.AddAuthentication(options =>
 
     //     return Task.CompletedTask;
     // };
+
+    // 🛡️ NEW: Graceful handler for login failure
+    options.Events.OnRemoteFailure = context =>
+    {
+        var errorMessage = context.Failure?.Message ?? "Unknown error";
+        context.Response.Redirect($"/Home/LoginFailed?error={Uri.EscapeDataString(errorMessage)}");
+        context.HandleResponse(); // Prevent exception bubbling
+        return Task.CompletedTask;
+    };
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -143,22 +152,20 @@ app.Use(async (context, next) =>
 
     If the header is still missing, you can defensively enforce HTTPS with a fallback using the original request scheme:
     */
-    var proto = context.Request.Headers["X-Forwarded-Proto"].FirstOrDefault();
-    if (!string.IsNullOrEmpty(proto))
-    {
-        context.Request.Scheme = proto;
-    }
-    else if (context.Request.IsHttps) // fallback
-    {
-        context.Request.Scheme = "https";
-    }
 
+    // var proto = context.Request.Headers["X-Forwarded-Proto"].FirstOrDefault();
+    // if (!string.IsNullOrEmpty(proto))
+    // {
+    //     context.Request.Scheme = proto;
+    // }
+    // else if (context.Request.IsHttps) // fallback
+    // {
+    //     context.Request.Scheme = "https";
+    // }
 
-    Console.WriteLine("---- Incoming Request Header Presence ----");
-
-    foreach (var h in context.Request.Headers)
-        Console.WriteLine($"{h.Key}: {h.Value}");
-
+    // Console.WriteLine("---- Incoming Request Header Presence ----");
+    // foreach (var h in context.Request.Headers)
+    //     Console.WriteLine($"{h.Key}: {h.Value}");
 
     await next();
 });
@@ -166,10 +173,24 @@ app.Use(async (context, next) =>
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    // app.UseExceptionHandler("/Home/Error");
+
+    app.UseExceptionHandler(errorApp =>
+    {
+        errorApp.Run(async context =>
+        {
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "text/plain";
+            var exception = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
+            await context.Response.WriteAsync("An unexpected error occurred.\n\n" + exception?.Message);
+        });
+    });
+
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+
 
 // app.UseHttpsRedirection();
 app.UseRouting();

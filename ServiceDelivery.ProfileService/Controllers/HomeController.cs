@@ -17,4 +17,10 @@ public class HomeController : Controller
     [HttpGet("/loading")]
     public IActionResult Loading() => View();
 
+    public IActionResult LoginFailed(string error)
+    {
+        ViewBag.ErrorMessage = error;
+        return View();
+    }
+
 }
