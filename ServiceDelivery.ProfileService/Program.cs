@@ -60,21 +60,21 @@ builder.Services.AddAuthentication(options =>
 
     // Optional: configure token validation, events, etc.
     // 🔒 Fix the redirect URI to use the real domain
-    // options.Events.OnRedirectToIdentityProvider = context =>
-    // {
-    //     var request = context.Request;
+    options.Events.OnRedirectToIdentityProvider = context =>
+    {
+        var request = context.Request;
 
-    //     var uriBuilder = new UriBuilder
-    //     {
-    //         Scheme = request.Scheme,              // Should be "https"
-    //         Host = request.Host.Host,             // odi-profile.codemie.dev
-    //         Port = request.Host.Port ?? -1,       // leave -1 to omit port if 443
-    //         Path = context.Options.CallbackPath   // Just "/signin-oidc"
-    //     };
+        var uriBuilder = new UriBuilder
+        {
+            Scheme = request.Scheme,              // Should be "https"
+            Host = request.Host.Host,             // odi-profile.codemie.dev
+            Port = request.Host.Port ?? -1,       // leave -1 to omit port if 443
+            Path = context.Options.CallbackPath   // Just "/signin-oidc"
+        };
 
-    //     context.ProtocolMessage.RedirectUri = uriBuilder.ToString();
-    //     return Task.CompletedTask;
-    // };
+        context.ProtocolMessage.RedirectUri = uriBuilder.ToString();
+        return Task.CompletedTask;
+    };
 
     // options.Events.OnRedirectToIdentityProviderForSignOut = context =>
     // {
