@@ -20,7 +20,7 @@ COPY --from=build /app/publish .
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_URLS=https://+:443;http://+:80
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/https.pfx
 ENV ASPNETCORE_Kestrel__Certificates__Default__Password=""
 
