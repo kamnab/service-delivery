@@ -110,19 +110,19 @@ builder.Services.AddScoped<ITokenRefreshService, TokenRefreshService>();
 builder.Services.AddCors();
 
 // -------------------- FORWARDED HEADERS --------------------
-// builder.Services.Configure<ForwardedHeadersOptions>(options =>
-// {
-//     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 
-//     // Optionally clear known networks/proxies (for Docker environments)
-//     options.KnownNetworks.Clear();
-//     options.KnownProxies.Clear();
-// });
+    // Optionally clear known networks/proxies (for Docker environments)
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 var app = builder.Build();
 
 // Ensure forwarded headers are processed FIRST
-// app.UseForwardedHeaders();
+app.UseForwardedHeaders();
 
 // 🔍 Debug log (remove later)
 app.Use(async (context, next) =>
