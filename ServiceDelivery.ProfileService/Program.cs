@@ -124,6 +124,8 @@ app.UseForwardedHeaders();
 app.Use(async (context, next) =>
 {
     Console.WriteLine("---- Incoming Request ----");
+    Console.WriteLine($"Path: {context.Request.Path}, UA: {context.Request.Headers["User-Agent"]}");
+
     Console.WriteLine("Scheme: " + context.Request.Scheme);
     Console.WriteLine("Host: " + context.Request.Host);
     Console.WriteLine("Path: " + context.Request.Path);
