@@ -64,15 +64,15 @@ builder.Services.AddAuthentication(options =>
     {
         var request = context.Request;
 
-        var redirectUri = new UriBuilder
+        var uriBuilder = new UriBuilder
         {
-            Scheme = request.Scheme,          // Should be https from proxy
-            Host = request.Host.Host,         // odi-profile.codemie.dev
-            Port = request.Host.Port ?? -1,   // 443 or empty
-            Path = context.ProtocolMessage.RedirectUri
+            Scheme = request.Scheme,              // Should be "https"
+            Host = request.Host.Host,             // odi-profile.codemie.dev
+            Port = request.Host.Port ?? -1,       // leave -1 to omit port if 443
+            Path = context.Options.CallbackPath   // Just "/signin-oidc"
         };
 
-        context.ProtocolMessage.RedirectUri = redirectUri.Uri.ToString();
+        context.ProtocolMessage.RedirectUri = uriBuilder.ToString();
         return Task.CompletedTask;
     };
 
@@ -80,15 +80,19 @@ builder.Services.AddAuthentication(options =>
     {
         var request = context.Request;
 
-        var postLogoutRedirectUri = new UriBuilder
+        if (!string.IsNullOrEmpty(context.Properties?.RedirectUri))
         {
-            Scheme = request.Scheme,
-            Host = request.Host.Host,
-            Port = request.Host.Port ?? -1,
-            Path = context.Properties.RedirectUri
-        };
+            var uriBuilder = new UriBuilder
+            {
+                Scheme = request.Scheme,
+                Host = request.Host.Host,
+                Port = request.Host.Port ?? -1,
+                Path = context.Properties.RedirectUri // Might already be full — so better to parse it properly
+            };
 
-        context.ProtocolMessage.PostLogoutRedirectUri = postLogoutRedirectUri.Uri.ToString();
+            context.ProtocolMessage.PostLogoutRedirectUri = uriBuilder.ToString();
+        }
+
         return Task.CompletedTask;
     };
 });
