@@ -166,6 +166,17 @@ app.Use(async (context, next) =>
 //     await next();
 // });
 
+app.Use((context, next) =>
+{
+    var proto = context.Request.Headers["X-Forwarded-Proto"].FirstOrDefault();
+    if (!string.IsNullOrEmpty(proto))
+    {
+        context.Request.Scheme = proto;
+    }
+    return next();
+});
+
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
