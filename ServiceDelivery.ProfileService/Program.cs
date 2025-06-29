@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 var builder = WebApplication.CreateBuilder(args);
 
 // Delay HTTPS configuration until cert file exists
-var certPath = "./https/profile-service.pfx";
+var certPath = "/https/profile-service.pfx";
 var certPassword = "changeit";
 builder.WebHost.ConfigureKestrel(options =>
 {
