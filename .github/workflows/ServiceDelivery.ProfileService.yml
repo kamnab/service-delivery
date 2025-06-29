@@ -29,7 +29,7 @@ jobs:
       - name: Transfer .env and cert to remote
         run: |
           # scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/.env ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.env
-          scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/Infrastructure/Resources/https/profile-service.pfx ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.pfx
+          scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/https/profile-service.pfx ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.pfx
       #     # scp -o StrictHostKeyChecking=no ./ServiceDelivery.ProfileService/Infrastructure/Resources/https/profile-service.crt ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/profile-service.crt
 
       - name: Check and Install Docker if not present
