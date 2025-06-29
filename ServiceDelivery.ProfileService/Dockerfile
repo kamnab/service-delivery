@@ -21,7 +21,7 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/profile-service.pfx
-ENV ASPNETCORE_Kestrel__Certificates__Default__Password=""
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password="changeit"
 
 ENTRYPOINT ["/entrypoint.sh"]
 
