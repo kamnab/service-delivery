@@ -60,41 +60,41 @@ builder.Services.AddAuthentication(options =>
 
     // Optional: configure token validation, events, etc.
     // 🔒 Fix the redirect URI to use the real domain
-    options.Events.OnRedirectToIdentityProvider = context =>
-    {
-        var request = context.Request;
+    // options.Events.OnRedirectToIdentityProvider = context =>
+    // {
+    //     var request = context.Request;
 
-        var uriBuilder = new UriBuilder
-        {
-            Scheme = request.Scheme,              // Should be "https"
-            Host = request.Host.Host,             // odi-profile.codemie.dev
-            Port = request.Host.Port ?? -1,       // leave -1 to omit port if 443
-            Path = context.Options.CallbackPath   // Just "/signin-oidc"
-        };
+    //     var uriBuilder = new UriBuilder
+    //     {
+    //         Scheme = request.Scheme,              // Should be "https"
+    //         Host = request.Host.Host,             // odi-profile.codemie.dev
+    //         Port = request.Host.Port ?? -1,       // leave -1 to omit port if 443
+    //         Path = context.Options.CallbackPath   // Just "/signin-oidc"
+    //     };
 
-        context.ProtocolMessage.RedirectUri = uriBuilder.ToString();
-        return Task.CompletedTask;
-    };
+    //     context.ProtocolMessage.RedirectUri = uriBuilder.ToString();
+    //     return Task.CompletedTask;
+    // };
 
-    options.Events.OnRedirectToIdentityProviderForSignOut = context =>
-    {
-        var request = context.Request;
+    // options.Events.OnRedirectToIdentityProviderForSignOut = context =>
+    // {
+    //     var request = context.Request;
 
-        if (!string.IsNullOrEmpty(context.Properties?.RedirectUri))
-        {
-            var uriBuilder = new UriBuilder
-            {
-                Scheme = request.Scheme,
-                Host = request.Host.Host,
-                Port = request.Host.Port ?? -1,
-                Path = context.Properties.RedirectUri // Might already be full — so better to parse it properly
-            };
+    //     if (!string.IsNullOrEmpty(context.Properties?.RedirectUri))
+    //     {
+    //         var uriBuilder = new UriBuilder
+    //         {
+    //             Scheme = request.Scheme,
+    //             Host = request.Host.Host,
+    //             Port = request.Host.Port ?? -1,
+    //             Path = context.Properties.RedirectUri // Might already be full — so better to parse it properly
+    //         };
 
-            context.ProtocolMessage.PostLogoutRedirectUri = uriBuilder.ToString();
-        }
+    //         context.ProtocolMessage.PostLogoutRedirectUri = uriBuilder.ToString();
+    //     }
 
-        return Task.CompletedTask;
-    };
+    //     return Task.CompletedTask;
+    // };
 });
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -110,19 +110,19 @@ builder.Services.AddScoped<ITokenRefreshService, TokenRefreshService>();
 builder.Services.AddCors();
 
 // -------------------- FORWARDED HEADERS --------------------
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+// builder.Services.Configure<ForwardedHeadersOptions>(options =>
+// {
+//     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 
-    // Optionally clear known networks/proxies (for Docker environments)
-    options.KnownNetworks.Clear();
-    options.KnownProxies.Clear();
-});
+//     // Optionally clear known networks/proxies (for Docker environments)
+//     options.KnownNetworks.Clear();
+//     options.KnownProxies.Clear();
+// });
 
 var app = builder.Build();
 
 // Ensure forwarded headers are processed FIRST
-app.UseForwardedHeaders();
+// app.UseForwardedHeaders();
 
 // 🔍 Debug log (remove later)
 app.Use(async (context, next) =>
