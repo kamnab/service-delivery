@@ -153,6 +153,13 @@ app.Use(async (context, next) =>
         context.Request.Scheme = "https";
     }
 
+
+    Console.WriteLine("---- Incoming Request Header Presence ----");
+
+    foreach (var h in context.Request.Headers)
+        Console.WriteLine($"{h.Key}: {h.Value}");
+
+
     await next();
 });
 
