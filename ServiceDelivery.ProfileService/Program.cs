@@ -134,6 +134,25 @@ app.Use(async (context, next) =>
     Console.WriteLine("Host: " + context.Request.Host);
     Console.WriteLine("Path: " + context.Request.Path);
     Console.WriteLine("X-Forwarded-Proto: " + context.Request.Headers["X-Forwarded-Proto"]);
+
+    /*
+    Nginx Proxy Manager Configuration
+    - Custom X-Forwarded-Proto Header: You need this!
+    - Value: proxy_set_header X-Forwarded-Proto $scheme;
+    - Result: X-Forwarded-Proto: https
+
+    If the header is still missing, you can defensively enforce HTTPS with a fallback using the original request scheme:
+    */
+    var proto = context.Request.Headers["X-Forwarded-Proto"].FirstOrDefault();
+    if (!string.IsNullOrEmpty(proto))
+    {
+        context.Request.Scheme = proto;
+    }
+    else if (context.Request.IsHttps) // fallback
+    {
+        context.Request.Scheme = "https";
+    }
+
     await next();
 });
 
@@ -171,16 +190,6 @@ app.Use(async (context, next) =>
 
 //     await next();
 // });
-
-app.Use((context, next) =>
-{
-    var proto = context.Request.Headers["X-Forwarded-Proto"].FirstOrDefault();
-    if (!string.IsNullOrEmpty(proto))
-    {
-        context.Request.Scheme = proto;
-    }
-    return next();
-});
 
 
 // Configure the HTTP request pipeline.
